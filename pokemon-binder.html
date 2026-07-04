@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Pokémon Card Binder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b1230;
+  --ink2:#0e1740;
+  --page:#18214d;
+  --page2:#1d2a5e;
+  --pocket:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.12);
+  --text:#eef1ff;
+  --dim:#9aa5d1;
+  --foil-a:#7df9ff;
+  --foil-b:#c77dff;
+  --gold:#ffd75e;
+  --up:#3ddc84;
+  --down:#ff5d73;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Nunito',system-ui,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 85% -10%, rgba(199,125,255,.16), transparent 60%),
+    radial-gradient(1000px 700px at -10% 110%, rgba(125,249,255,.12), transparent 60%),
+    var(--ink);
+  color:var(--text);
+  min-height:100vh;
+  padding:18px 14px 40px;
+}
+/* tiny star sparkles */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 22%, #fff 40%, transparent 60%),
+    radial-gradient(1px 1px at 78% 12%, #fff 40%, transparent 60%),
+    radial-gradient(1.5px 1.5px at 62% 78%, #fff 40%, transparent 60%),
+    radial-gradient(1px 1px at 30% 88%, #fff 40%, transparent 60%),
+    radial-gradient(1px 1px at 92% 55%, #fff 40%, transparent 60%);
+}
+.wrap{max-width:980px;margin:0 auto;position:relative;z-index:1}
+
+/* ============ HEADER ============ */
+header{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px;
+  padding:14px 18px;margin-bottom:18px;
+  background:linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  border:1px solid var(--line);border-radius:18px;
+  backdrop-filter:blur(6px);
+}
+.logo{display:flex;align-items:center;gap:10px}
+.ball{
+  width:34px;height:34px;border-radius:50%;flex:none;
+  background:linear-gradient(to bottom, #ff5d73 0 46%, #101736 46% 54%, #f4f6ff 54% 100%);
+  position:relative;border:2px solid #101736;
+  box-shadow:0 4px 14px rgba(255,93,115,.35);
+}
+.ball::after{
+  content:"";position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:10px;height:10px;border-radius:50%;background:#f4f6ff;border:2.5px solid #101736;
+}
+h1{font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(19px,3.4vw,26px);letter-spacing:.3px}
+h1 span{background:linear-gradient(90deg,var(--foil-a),var(--foil-b));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stats{display:flex;align-items:center;gap:18px;margin-left:auto;flex-wrap:wrap}
+.stat{text-align:right}
+.stat .label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.total{
+  font-family:'Fredoka',sans-serif;font-weight:700;font-size:clamp(24px,4.5vw,34px);line-height:1.05;
+  color:var(--gold);text-shadow:0 2px 18px rgba(255,215,94,.35);
+}
+.stat .sub{font-size:12px;font-weight:800}
+.chip{
+  font-size:12px;font-weight:900;padding:5px 11px;border-radius:999px;
+  background:rgba(255,255,255,.08);border:1px solid var(--line);white-space:nowrap;
+}
+#refreshBtn{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:#0b1230;
+  background:linear-gradient(90deg,var(--foil-a),var(--foil-b));
+  border:none;border-radius:999px;padding:10px 18px;cursor:pointer;
+  box-shadow:0 6px 18px rgba(125,249,255,.28);
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+#refreshBtn:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(199,125,255,.4)}
+#refreshBtn:disabled{opacity:.55;cursor:wait;transform:none}
+.progress{width:100%;display:none;align-items:center;gap:10px;font-size:12px;font-weight:800;color:var(--dim)}
+.progress.on{display:flex}
+.bar{flex:1;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--foil-a),var(--foil-b));transition:width .25s ease}
+
+/* ============ TOOLBAR ============ */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 10px}
+.pageLabel{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;color:var(--dim)}
+.pageLabel b{color:var(--text)}
+select{
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;color:var(--text);
+  background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:7px 10px;cursor:pointer;
+}
+
+/* ============ BINDER PAGE ============ */
+.binderRow{display:flex;align-items:center;gap:10px}
+.navBtn{
+  flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
+  background:linear-gradient(135deg, rgba(125,249,255,.16), rgba(199,125,255,.16));
+  color:var(--text);font-size:19px;cursor:pointer;font-weight:900;
+  transition:transform .15s ease, background .15s ease;
+}
+.navBtn:hover{transform:scale(1.08)}
+.navBtn:disabled{opacity:.25;cursor:default;transform:none}
+.page{
+  flex:1;position:relative;border-radius:20px;padding:20px 20px 20px 42px;
+  background:linear-gradient(160deg, var(--page2), var(--page));
+  border:1px solid var(--line);
+  box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.08);
+  transition:opacity .18s ease, transform .18s ease;
+}
+.page.turning{opacity:0;transform:translateX(14px)}
+/* binder ring holes */
+.rings{position:absolute;left:12px;top:0;bottom:0;display:flex;flex-direction:column;justify-content:space-evenly}
+.ring{
+  width:16px;height:16px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #2b3a7a, var(--ink) 70%);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.12);
+}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+
+/* ============ POCKET + CARD ============ */
+.pocket{
+  background:var(--pocket);border:1px solid var(--line);border-radius:var(--radius);
+  padding:8px 8px 9px;display:flex;flex-direction:column;gap:7px;
+  box-shadow:inset 0 2px 10px rgba(0,0,0,.35);
+}
+.cardface{
+  position:relative;aspect-ratio:63/88;border-radius:9px;cursor:pointer;
+  transform:perspective(650px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:transform .18s ease;will-change:transform;
+  background:var(--ink2);
+}
+.cardface img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:9px;
+  box-shadow:0 8px 20px rgba(0,0,0,.5);
+}
+/* holo foil shine — the signature */
+.cardface::after{
+  content:"";position:absolute;inset:0;border-radius:9px;pointer-events:none;opacity:0;
+  background:
+    radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.5), transparent 42%),
+    conic-gradient(from 0deg at var(--mx,50%) var(--my,50%),
+      rgba(255,93,115,.35), rgba(255,215,94,.35), rgba(61,220,132,.35),
+      rgba(125,249,255,.35), rgba(199,125,255,.35), rgba(255,93,115,.35));
+  mix-blend-mode:color-dodge;
+  transition:opacity .2s ease;
+}
+.cardface:hover::after,.cardface:focus-visible::after{opacity:.85}
+.cardface:focus-visible{outline:2px solid var(--foil-a);outline-offset:3px}
+/* placeholder art when no image found */
+.ph{
+  position:absolute;inset:0;border-radius:9px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;text-align:center;padding:8px;
+  background:linear-gradient(160deg,#232f6b,#131b45);
+}
+.ph .mini{width:30px;height:30px;border-radius:50%;border:2.5px solid rgba(255,255,255,.5);position:relative}
+.ph .mini::before{content:"";position:absolute;left:-1px;right:-1px;top:50%;height:2.5px;background:rgba(255,255,255,.5);transform:translateY(-50%)}
+.ph .mini::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.6);transform:translate(-50%,-50%)}
+.ph p{font-size:11px;font-weight:900;line-height:1.25;color:#cfd6ff}
+.ph small{font-size:10px;color:var(--dim);font-weight:800}
+/* bulk stack tile */
+.stack{position:absolute;inset:0}
+.stack i{
+  position:absolute;left:12%;right:12%;top:14%;bottom:26%;border-radius:8px;
+  background:linear-gradient(160deg,#2a3877,#182254);border:1px solid var(--line);
+  box-shadow:0 6px 16px rgba(0,0,0,.45);
+}
+.stack i:nth-child(1){transform:rotate(-7deg) translate(-6%,4%)}
+.stack i:nth-child(2){transform:rotate(4deg) translate(6%,-2%)}
+.stack i:nth-child(3){display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px}
+.stack b{font-family:'Fredoka',sans-serif;font-size:22px}
+.stack small{font-size:9.5px;font-weight:900;color:var(--dim)}
+/* badges */
+.badge{
+  position:absolute;z-index:2;font-size:10px;font-weight:900;padding:3px 8px;border-radius:999px;
+  border:1px solid rgba(0,0,0,.25);box-shadow:0 3px 8px rgba(0,0,0,.4);
+}
+.badge.qty{right:6px;top:6px;background:var(--foil-a);color:#0b1230}
+.badge.grade{left:6px;top:6px;background:linear-gradient(90deg,#ffd75e,#ffb84d);color:#4a2d00}
+/* caption */
+.cap{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cap .nm{font-size:12px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap .row{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.cap .pr{font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px;color:var(--gold)}
+.trend{font-size:10.5px;font-weight:900;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.trend.up{color:var(--up);background:rgba(61,220,132,.13)}
+.trend.down{color:var(--down);background:rgba(255,93,115,.13)}
+.trend.flat{color:var(--dim);background:rgba(255,255,255,.07)}
+
+/* ============ DOTS ============ */
+.dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.16);border:none;cursor:pointer;transition:all .2s ease}
+.dot.on{background:linear-gradient(90deg,var(--foil-a),var(--foil-b));transform:scale(1.25)}
+
+/* ============ MODAL ============ */
+.overlay{
+  position:fixed;inset:0;background:rgba(5,8,24,.75);backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;padding:16px;z-index:50;
+}
+.overlay.on{display:flex}
+.modal{
+  width:min(860px,100%);max-height:92vh;overflow:auto;border-radius:22px;position:relative;
+  background:linear-gradient(160deg,#1c2758,#121a42);border:1px solid var(--line);
+  box-shadow:0 40px 90px rgba(0,0,0,.6);
+  display:grid;grid-template-columns:300px 1fr;gap:22px;padding:22px;
+}
+.modal .bigcard{position:relative}
+.modal .bigcard .cardface{cursor:default}
+.mClose{
+  position:absolute;top:12px;right:12px;z-index:3;width:36px;height:36px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text);
+  font-size:17px;font-weight:900;cursor:pointer;
+}
+.mClose:hover{background:rgba(255,93,115,.25)}
+.info h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:24px;line-height:1.15;padding-right:36px}
+.info .set{color:var(--dim);font-weight:800;font-size:13px;margin-top:3px}
+.tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:11px;font-weight:900;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line)}
+.tag.gold{background:linear-gradient(90deg,#ffd75e,#ffb84d);color:#4a2d00;border:none}
+.bigprice{display:flex;align-items:baseline;gap:12px;margin:16px 0 4px;flex-wrap:wrap}
+.bigprice .v{font-family:'Fredoka',sans-serif;font-weight:700;font-size:38px;color:var(--gold);text-shadow:0 2px 18px rgba(255,215,94,.3)}
+.note{font-size:12px;color:var(--dim);font-weight:700;line-height:1.5;margin-top:4px}
+.chartBox{margin-top:16px;background:rgba(0,0,0,.22);border:1px solid var(--line);border-radius:14px;padding:14px}
+.chartBox h3{font-size:12px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.chartBox svg{width:100%;height:auto;display:block}
+.hist{margin-top:12px;display:flex;flex-direction:column;gap:5px;max-height:150px;overflow:auto}
+.hist .r{display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.045)}
+.hist .r .d{color:var(--dim)}
+
+/* ============ TOAST / FOOTER ============ */
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);
+  background:#232f6b;border:1px solid var(--line);color:var(--text);
+  font-size:13px;font-weight:800;padding:12px 18px;border-radius:14px;max-width:92vw;text-align:center;
+  box-shadow:0 14px 40px rgba(0,0,0,.55);transition:transform .3s ease;z-index:90;
+}
+.toast.on{transform:translateX(-50%) translateY(0)}
+footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:var(--dim);line-height:1.7}
+
+@media (max-width:640px){
+  .page{padding:14px 12px 14px 32px}
+  .rings{left:8px}.ring{width:12px;height:12px}
+  .grid{gap:8px}
+  .pocket{padding:5px 5px 6px}
+  .cap .nm{font-size:10px}.cap .pr{font-size:12px}.trend{font-size:9px;padding:2px 5px}
+  .navBtn{width:36px;height:36px;font-size:16px}
+  .modal{grid-template-columns:1fr;gap:16px;padding:16px}
+  .modal .bigcard{max-width:250px;margin:0 auto}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+  .cardface{transform:none !important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo"><div class="ball"></div><h1>My <span>Pokémon</span> Binder</h1></div>
+    <div class="stats">
+      <div class="stat">
+        <div class="label">Collection value</div>
+        <div class="total" id="totalVal">$0</div>
+        <div class="sub" id="totalTrend"></div>
+      </div>
+      <div class="chip" id="countChip"></div>
+      <button id="refreshBtn">↻ Refresh prices</button>
+    </div>
+    <div class="progress" id="progress"><span id="progText">Fetching…</span><div class="bar"><i id="progBar"></i></div></div>
+  </header>
+
+  <div class="toolbar">
+    <div class="pageLabel">Page <b id="pageNum">1</b> of <b id="pageCount">1</b></div>
+    <select id="sortSel" aria-label="Sort cards">
+      <option value="binder">Binder order</option>
+      <option value="value">Highest value first</option>
+      <option value="trend">Biggest movers first</option>
+    </select>
+  </div>
+
+  <div class="binderRow">
+    <button class="navBtn" id="prevBtn" aria-label="Previous page">‹</button>
+    <div class="page" id="page">
+      <div class="rings"><div class="ring"></div><div class="ring"></div><div class="ring"></div></div>
+      <div class="grid" id="grid"></div>
+    </div>
+    <button class="navBtn" id="nextBtn" aria-label="Next page">›</button>
+  </div>
+  <div class="dots" id="dots"></div>
+
+  <footer>
+    Prices are TCGplayer <b>market prices</b> from the Pokémon TCG API — what cards usually sell for, not a guarantee.<br>
+    Graded cards (PSA) keep their own saved values. Card art © Pokémon / Nintendo — for your personal collection only.
+  </footer>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" id="modalBox"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+/* ================= YOUR CARDS ================= */
+/* price = market value per copy (USD), researched 2026-07-01
+   prev  = estimated value ~30 days earlier (from published 30-day change data) */
+const CARDS = [
+ {id:"lucario160", name:"Mega Lucario ex", num:"160/132", total:132, sets:["me1","me01"], nums:["160"], kw:"lucario", set:"Mega Evolution", price:15, prev:17.6},
+ {id:"absol180", name:"Mega Absol ex", num:"180/132", total:132, sets:["me1","me01"], nums:["180"], kw:"absol", set:"Mega Evolution", price:70},
+ {id:"pidgeot217", name:"Pidgeot ex", num:"217/197", total:197, sets:["sv3"], nums:["217"], kw:"pidgeot", set:"Obsidian Flames", price:4},
+ {id:"lapras10", name:"Lapras", num:"10/62", total:62, sets:["base3"], nums:["10"], kw:"lapras", set:"Fossil", price:35, graded:"PSA 8"},
+ {id:"ninetales199", name:"Ninetales", num:"199/197", total:197, sets:["sv3"], nums:["199"], kw:"ninetales", set:"Obsidian Flames", price:28, graded:"PSA 9"},
+ {id:"zardvstar", name:"Charizard VSTAR", num:"SWSH262", sets:["swshp"], nums:["SWSH262"], kw:"charizard", set:"SWSH Black Star Promos", price:90, prev:74},
+ {id:"megazardx", name:"Mega Charizard X ex", num:"023", sets:["mep","me1p"], nums:["023","23"], kw:"charizard", set:"Mega Evolution Promos", price:41},
+ {id:"areazero174", name:"Area Zero Underdepths", num:"174/142", total:142, sets:["sv7"], nums:["174"], kw:"area", set:"Stellar Crown", price:12},
+ {id:"tera128", name:"Terapagos ex", num:"128/142", total:142, sets:["sv7"], nums:["128"], kw:"terapagos", set:"Stellar Crown", price:1, qty:2},
+ {id:"houndstone145", name:"Houndstone", num:"145/132", total:132, sets:["me1","me01"], nums:["145"], kw:"houndstone", set:"Mega Evolution", price:3},
+ {id:"dragapult130", name:"Dragapult ex", num:"130/167", total:167, sets:["sv6"], nums:["130"], kw:"dragapult", set:"Twilight Masquerade", price:2},
+ {id:"tm162", name:"Mystery card", num:"162/167", total:167, sets:["sv6"], nums:["162"], kw:"", set:"Twilight Masquerade", price:0.5, reveal:true},
+ {id:"ribombee164", name:"Lillie's Ribombee", num:"164/159", total:159, sets:["sv9"], nums:["164"], kw:"ribombee", set:"Journey Together", price:5},
+ {id:"reshiram167", name:"N's Reshiram", num:"167/159", total:159, sets:["sv9"], nums:["167"], kw:"reshiram", set:"Journey Together", price:16},
+ {id:"furret168", name:"Furret", num:"168/159", total:159, sets:["sv9"], nums:["168"], kw:"furret", set:"Journey Together", price:6},
+ {id:"bulkjt", name:"Journey Together bulk", num:"#024\u2013#096", set:"Journey Together", price:10, bulk:73},
+ {id:"tera173", name:"Terapagos ex (Gold)", num:"173/142", total:142, sets:["sv7"], nums:["173"], kw:"terapagos", set:"Stellar Crown", price:25},
+ {id:"tera165", name:"Terapagos ex", num:"SVP 165", sets:["svp"], nums:["165"], kw:"terapagos", set:"SV Black Star Promos", price:5},
+ {id:"decidueye100", name:"Decidueye ex", num:"100/088", total:88, sets:["me3","me03"], nums:["100"], kw:"decidueye", set:"Perfect Order", price:4},
+ {id:"pf115", name:"Mystery card", num:"115/094", total:94, sets:["me2","me02"], nums:["115"], kw:"", set:"Phantasmal Flames", price:2, reveal:true},
+ {id:"pidgey207", name:"Pidgey", num:"207/197", total:197, sets:["sv3"], nums:["207"], kw:"pidgey", set:"Obsidian Flames", price:16, prev:10},
+ {id:"lucariovstar", name:"Lucario VSTAR", num:"SWSH214", sets:["swshp"], nums:["SWSH214"], kw:"lucario", set:"SWSH Black Star Promos", price:3},
+ {id:"latias220", name:"Latias ex", num:"220/191", total:191, sets:["sv8"], nums:["220"], kw:"latias", set:"Surging Sparks", price:8},
+ {id:"noctowl141", name:"Noctowl", num:"SVP 141", sets:["svp"], nums:["141"], kw:"noctowl", set:"SV Black Star Promos", price:4, qty:2},
+ {id:"wobb203", name:"Team Rocket's Wobbuffet", num:"SVP 203", sets:["svp"], nums:["203"], kw:"wobbuffet", set:"SV Black Star Promos", price:2},
+ {id:"exeggutor135", name:"Exeggutor", num:"135/132", total:132, sets:["me1","me01"], nums:["135"], kw:"exeggutor", set:"Mega Evolution", price:5, prev:4.85},
+ {id:"moltres208", name:"Team Rocket's Moltres ex", num:"208/182", total:182, sets:["sv10"], nums:["208"], kw:"moltres", set:"Destined Rivals", price:6, prev:5.6}
+];
+const BASE_DATE = "2026-07-01";
+const EST_DATE  = "2026-06-01";
+
+/* ================= SAFE STORAGE (works even where localStorage is blocked) ================= */
+const mem = {};
+const store = {
+  get(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : (mem[k]||null); }catch(e){ return mem[k]||null; } },
+  set(k,v){ mem[k]=v; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+
+/* history = { "YYYY-MM-DD": { cardId: pricePerCopy } } */
+let history = store.get("binder.history");
+if(!history){
+  history = {};
+  const est = {};
+  CARDS.forEach(c=>{ if(c.prev!=null) est[c.id]=c.prev; });
+  history[EST_DATE] = est;
+  const base = {};
+  CARDS.forEach(c=> base[c.id]=c.price);
+  history[BASE_DATE] = base;
+  store.set("binder.history", history);
+}
+let meta = store.get("binder.meta") || {};
+let setIds = store.get("binder.setids") || {};
+
+/* ================= HELPERS ================= */
+const $ = s => document.querySelector(s);
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const todayKey = () => new Date().toISOString().slice(0,10);
+const dates = () => Object.keys(history).sort();
+const fmtNum = v => (v>=100 ? Math.round(v).toString() : (Math.round(v*100)/100).toFixed(2).replace(/\.00$/,""));
+const money = v => "$"+fmtNum(v);
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function prettyDate(d){ const p=d.split("-"); return MONTHS[+p[1]-1]+" "+(+p[2])+(d===EST_DATE?" (est.)":""); }
+function latestPrice(id){
+  const ds = dates();
+  for(let i=ds.length-1;i>=0;i--){ if(history[ds[i]][id]!=null) return history[ds[i]][id]; }
+  const c = CARDS.find(x=>x.id===id); return c?c.price:0;
+}
+function firstPrice(id){
+  const ds = dates();
+  for(let i=0;i<ds.length;i++){ if(history[ds[i]][id]!=null) return history[ds[i]][id]; }
+  return null;
+}
+function seriesOf(id){ return dates().filter(d=>history[d][id]!=null).map(d=>({d, v:history[d][id]})); }
+function trendOf(id){
+  const s = seriesOf(id);
+  if(s.length<2 || s[0].v===0) return null;
+  return (s[s.length-1].v - s[0].v)/s[0].v*100;
+}
+function cardValue(c){ return latestPrice(c.id) * (c.qty||1); }
+function totalValue(){ return CARDS.reduce((s,c)=>s+cardValue(c),0); }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
+function displayName(c){ const m=meta[c.id]; return (c.reveal && m && m.name) ? m.name : c.name; }
+
+/* ================= LIVE PRICES (Pok\u00e9mon TCG API) ================= */
+const API = "https://api.pokemontcg.io/v2/cards";
+let netFailed = false;
+
+function buildQueries(c){
+  const qs = [];
+  const known = setIds[c.set];
+  const sids = known ? [known, ...(c.sets||[]).filter(s=>s!==known)] : (c.sets||[]);
+  sids.forEach(sid => (c.nums||[]).forEach(n => qs.push({q:"set.id:"+sid+" number:"+n, strict:false})));
+  if(c.total && c.nums) c.nums.forEach(n => qs.push({q:"number:"+n, strict:true}));
+  return qs;
+}
+async function apiGet(q, retried){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), 12000);
+  try{
+    const r = await fetch(API+"?q="+encodeURIComponent(q)+"&pageSize=250", {signal:ctrl.signal});
+    clearTimeout(t);
+    if(r.status===429 && !retried){ await sleep(2500); return apiGet(q, true); }
+    if(!r.ok) return null;
+    const j = await r.json();
+    return j.data || [];
+  }catch(e){ clearTimeout(t); return null; }
+}
+function pickPrice(tp){
+  if(!tp || !tp.prices) return null;
+  const p = tp.prices;
+  for(const k of ["holofoil","normal","reverseHolofoil"]){ if(p[k] && p[k].market) return p[k].market; }
+  for(const k in p){ if(p[k] && (p[k].market || p[k].mid)) return p[k].market || p[k].mid; }
+  return null;
+}
+async function fetchCard(c){
+  if(c.bulk) return null;
+  for(const item of buildQueries(c)){
+    const data = await apiGet(item.q);
+    await sleep(200);
+    if(data===null){ netFailed = true; continue; }
+    let list = data;
+    if(item.strict){
+      list = data.filter(x => x.set && x.set.printedTotal===c.total);
+      if(c.kw) list = list.filter(x => x.name.toLowerCase().includes(c.kw));
+    } else if(c.kw){
+      list = data.filter(x => x.name.toLowerCase().includes(c.kw));
+      if(!list.length) list = data;
+    }
+    if(list.length){
+      const x = list[0];
+      if(x.set && x.set.id){ setIds[c.set]=x.set.id; store.set("binder.setids", setIds); }
+      return {
+        name: x.name,
+        img: (x.images && (x.images.small || x.images.large)) || null,
+        rarity: x.rarity || "",
+        setName: (x.set && x.set.name) || c.set,
+        price: pickPrice(x.tcgplayer)
+      };
+    }
+  }
+  return null;
+}
+async function refreshAll(){
+  const btn=$("#refreshBtn"); btn.disabled=true;
+  const prog=$("#progress"), bar=$("#progBar"), txt=$("#progText");
+  prog.classList.add("on"); bar.style.width="0%";
+  netFailed=false;
+  const live={}; let done=0;
+  const targets = CARDS.filter(c=>!c.bulk);
+  const queue=[...targets];
+  async function worker(){
+    while(queue.length){
+      const c=queue.shift();
+      const r=await fetchCard(c);
+      if(r){
+        meta[c.id]={img:r.img, name:r.name, rarity:r.rarity, setName:r.setName};
+        if(!c.graded && r.price!=null) live[c.id]=r.price;
+      }
+      done++;
+      bar.style.width=(done/targets.length*100)+"%";
+      txt.textContent="Fetching cards\u2026 "+done+"/"+targets.length;
+      if(done%6===0) render();
+    }
+  }
+  await Promise.all([worker(),worker(),worker()]);
+  store.set("binder.meta", meta);
+  if(Object.keys(live).length){
+    const day = Object.assign({}, history[todayKey()]||{});
+    CARDS.forEach(c=>{ day[c.id] = (live[c.id]!=null) ? live[c.id] : latestPrice(c.id); });
+    history[todayKey()]=day;
+    store.set("binder.history", history);
+    toast("Live prices updated for "+Object.keys(live).length+" cards \u2714 Check back tomorrow to grow your charts!");
+  } else if(netFailed){
+    toast("Couldn't reach the price server \u2014 showing saved prices. If you're viewing this in chat, download the file and open it on your computer for live mode!");
+  }
+  prog.classList.remove("on"); btn.disabled=false;
+  render();
+}
+
+/* ================= RENDER ================= */
+let pageIdx=0, sortMode="binder", shownTotal=0;
+function orderedCards(){
+  const arr=[...CARDS];
+  if(sortMode==="value") arr.sort((a,b)=>cardValue(b)-cardValue(a));
+  if(sortMode==="trend") arr.sort((a,b)=>Math.abs(trendOf(b.id)||0)-Math.abs(trendOf(a.id)||0));
+  return arr;
+}
+function trendChip(id){
+  const t=trendOf(id);
+  if(t===null) return '<span class="trend flat">\u2014 new</span>';
+  if(Math.abs(t)<0.5) return '<span class="trend flat">\u2192 0%</span>';
+  const up=t>0;
+  return '<span class="trend '+(up?"up":"down")+'">'+(up?"\u25b2":"\u25bc")+" "+Math.abs(t).toFixed(0)+"%</span>";
+}
+function faceHTML(c){
+  const m=meta[c.id]||{};
+  if(c.bulk){
+    return '<div class="stack"><i></i><i></i><i><b>\u00d7'+c.bulk+'</b><small>'+escapeHtml(c.num)+'</small></i></div>';
+  }
+  if(m.img) return '<img src="'+m.img+'" alt="'+escapeHtml(displayName(c))+'" loading="lazy">';
+  return '<div class="ph"><div class="mini"></div><p>'+escapeHtml(displayName(c))+'</p><small>'+escapeHtml(c.num)+'</small></div>';
+}
+function attachTilt(el){
+  el.addEventListener("mousemove",e=>{
+    const r=el.getBoundingClientRect();
+    const px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+    el.style.setProperty("--ry",((px-0.5)*14)+"deg");
+    el.style.setProperty("--rx",((0.5-py)*14)+"deg");
+    el.style.setProperty("--mx",(px*100)+"%");
+    el.style.setProperty("--my",(py*100)+"%");
+  });
+  el.addEventListener("mouseleave",()=>{
+    el.style.setProperty("--rx","0deg");
+    el.style.setProperty("--ry","0deg");
+  });
+}
+function animateTotal(t){
+  const el=$("#totalVal"); const from=shownTotal; shownTotal=t;
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches){ el.textContent=money(t); return; }
+  const t0=performance.now();
+  function step(now){
+    const p=Math.min(1,(now-t0)/600), e=1-Math.pow(1-p,3);
+    el.textContent=money(from+(t-from)*e);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function render(){
+  const cards=orderedCards();
+  const pages=Math.max(1,Math.ceil(cards.length/9));
+  if(pageIdx>=pages) pageIdx=pages-1;
+  $("#pageNum").textContent=pageIdx+1;
+  $("#pageCount").textContent=pages;
+  $("#prevBtn").disabled=(pageIdx===0);
+  $("#nextBtn").disabled=(pageIdx===pages-1);
+  const dotsEl=$("#dots"); dotsEl.innerHTML="";
+  for(let i=0;i<pages;i++){
+    const b=document.createElement("button");
+    b.className="dot"+(i===pageIdx?" on":"");
+    b.setAttribute("aria-label","Page "+(i+1));
+    b.onclick=()=>{pageIdx=i;flip();};
+    dotsEl.appendChild(b);
+  }
+  const g=$("#grid"); g.innerHTML="";
+  cards.slice(pageIdx*9,pageIdx*9+9).forEach(c=>{
+    const pk=document.createElement("div"); pk.className="pocket";
+    pk.innerHTML=
+      '<div class="cardface" tabindex="0" role="button" aria-label="'+escapeHtml(displayName(c))+'">'+
+        (c.qty>1?'<span class="badge qty">\u00d7'+c.qty+'</span>':"")+
+        (c.graded?'<span class="badge grade">'+c.graded+'</span>':"")+
+        faceHTML(c)+
+      '</div>'+
+      '<div class="cap"><div class="nm">'+escapeHtml(displayName(c))+'</div>'+
+      '<div class="row"><span class="pr">'+money(cardValue(c))+'</span>'+trendChip(c.id)+'</div></div>';
+    const face=pk.querySelector(".cardface");
+    attachTilt(face);
+    face.addEventListener("click",()=>openModal(c));
+    face.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); openModal(c); } });
+    g.appendChild(pk);
+  });
+  animateTotal(totalValue());
+  $("#countChip").textContent=CARDS.reduce((s,c)=>s+(c.bulk||c.qty||1),0)+" cards";
+  const firstTot=CARDS.reduce((s,c)=>{ const f=firstPrice(c.id); return s+(f!=null?f:c.price)*(c.qty||1); },0);
+  const diff=totalValue()-firstTot, tEl=$("#totalTrend");
+  if(Math.abs(diff)<0.5){ tEl.textContent="holding steady"; tEl.style.color="var(--dim)"; }
+  else{
+    tEl.textContent=(diff>0?"\u25b2 +$":"\u25bc \u2212$")+fmtNum(Math.abs(diff))+" since "+prettyDate(dates()[0]);
+    tEl.style.color=diff>0?"var(--up)":"var(--down)";
+  }
+}
+function flip(){
+  const p=$("#page");
+  p.classList.add("turning");
+  setTimeout(()=>{ render(); p.classList.remove("turning"); },160);
+}
+
+/* ================= MODAL + CHART ================= */
+function chartSVG(s){
+  if(!s.length) return '<div class="note">No data yet.</div>';
+  const W=520,H=180,P=30;
+  const vs=s.map(p=>p.v);
+  let min=Math.min.apply(null,vs), max=Math.max.apply(null,vs);
+  if(min===max){ min-=1; max+=1; }
+  const pad=(max-min)*0.15; min-=pad; max+=pad; if(min<0) min=0;
+  const X=i=> s.length===1 ? W/2 : P+(W-2*P)*i/(s.length-1);
+  const Y=v=> H-P-(H-2*P)*(v-min)/(max-min);
+  const pts=s.map((p,i)=>X(i).toFixed(1)+","+Y(p.v).toFixed(1)).join(" ");
+  const up = s[s.length-1].v >= s[0].v;
+  const col = up ? "#3ddc84" : "#ff5d73";
+  const area = P+","+(H-P)+" "+pts+" "+(s.length===1?W/2:W-P)+","+(H-P);
+  const dots=s.map((p,i)=>'<circle cx="'+X(i).toFixed(1)+'" cy="'+Y(p.v).toFixed(1)+'" r="'+(i===s.length-1?5:3.5)+'" fill="'+col+'"/>').join("");
+  return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Price history chart">'+
+    '<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">'+
+    '<stop offset="0" stop-color="'+col+'" stop-opacity=".35"/>'+
+    '<stop offset="1" stop-color="'+col+'" stop-opacity="0"/></linearGradient></defs>'+
+    '<polygon points="'+area+'" fill="url(#cg)"/>'+
+    '<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'+
+    dots+
+    '<text x="'+P+'" y="'+(H-8)+'" font-size="11" fill="#9aa5d1" font-weight="700">'+prettyDate(s[0].d)+'</text>'+
+    '<text x="'+(W-P)+'" y="'+(H-8)+'" font-size="11" fill="#9aa5d1" font-weight="700" text-anchor="end">'+prettyDate(s[s.length-1].d)+'</text>'+
+    '<text x="'+(W-P)+'" y="18" font-size="13" fill="#ffd75e" font-weight="800" text-anchor="end">'+money(s[s.length-1].v)+'</text>'+
+    '</svg>';
+}
+function histRows(s){
+  const rev=[...s].reverse();
+  return rev.map((p,i)=>{
+    const older=rev[i+1];
+    let d="";
+    if(older){
+      const diff=p.v-older.v;
+      if(Math.abs(diff)>=0.005){
+        d=' <span style="color:'+(diff>0?"var(--up)":"var(--down)")+'">'+(diff>0?"+":"\u2212")+"$"+fmtNum(Math.abs(diff))+"</span>";
+      }
+    }
+    return '<div class="r"><span class="d">'+prettyDate(p.d)+'</span><span>'+money(p.v)+d+'</span></div>';
+  }).join("");
+}
+function openModal(c){
+  const m=meta[c.id]||{};
+  const s=seriesOf(c.id);
+  const box=$("#modalBox");
+  box.innerHTML=
+    '<button class="mClose" aria-label="Close">\u2715</button>'+
+    '<div class="bigcard"><div class="cardface">'+faceHTML(c)+'</div></div>'+
+    '<div class="info">'+
+      '<h2>'+escapeHtml(displayName(c))+'</h2>'+
+      '<div class="set">'+escapeHtml(m.setName||c.set)+' \u2022 '+escapeHtml(c.num)+'</div>'+
+      '<div class="tags">'+
+        (c.graded?'<span class="tag gold">'+c.graded+' graded</span>':"")+
+        (m.rarity?'<span class="tag">'+escapeHtml(m.rarity)+'</span>':"")+
+        (c.qty>1?'<span class="tag">You have \u00d7'+c.qty+'</span>':"")+
+        (c.bulk?'<span class="tag">'+c.bulk+' cards</span>':"")+
+      '</div>'+
+      '<div class="bigprice"><span class="v">'+money(cardValue(c))+'</span>'+trendChip(c.id)+'</div>'+
+      (c.qty>1?'<div class="note">'+money(latestPrice(c.id))+' each \u00d7 '+c.qty+' copies</div>':"")+
+      (c.graded?'<div class="note">Graded cards keep their saved value \u2014 online market prices track ungraded copies, which would be misleading here.</div>':"")+
+      (c.bulk
+        ? '<div class="note">Your stack of commons and uncommons ('+escapeHtml(c.num)+'), valued as one lot. Flip through it sometime \u2014 hidden gems happen!</div>'
+        : '<div class="chartBox"><h3>Price history</h3>'+chartSVG(s)+'</div><div class="hist">'+histRows(s)+'</div>')+
+    '</div>';
+  box.querySelector(".mClose").onclick=closeModal;
+  const face=box.querySelector(".bigcard .cardface");
+  if(face) attachTilt(face);
+  $("#overlay").classList.add("on");
+}
+function closeModal(){ $("#overlay").classList.remove("on"); }
+
+/* ================= TOAST + WIRING ================= */
+let toastT;
+function toast(msg){
+  const t=$("#toast");
+  t.textContent=msg;
+  t.classList.add("on");
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove("on"), 6000);
+}
+$("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeModal(); });
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ closeModal(); return; }
+  if($("#overlay").classList.contains("on")) return;
+  if(e.key==="ArrowLeft" && !$("#prevBtn").disabled){ pageIdx--; flip(); }
+  if(e.key==="ArrowRight" && !$("#nextBtn").disabled){ pageIdx++; flip(); }
+});
+$("#prevBtn").onclick=()=>{ pageIdx--; flip(); };
+$("#nextBtn").onclick=()=>{ pageIdx++; flip(); };
+$("#sortSel").onchange=e=>{ sortMode=e.target.value; pageIdx=0; render(); };
+$("#refreshBtn").onclick=refreshAll;
+
+render();
+refreshAll();
+</script>
+</body>
+</html>
