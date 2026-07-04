@@ -40,6 +40,7 @@ Either way it shows "— new" for its trend until it has two price snapshots. Th
 - Colors live in `:root`: deep navy background `--ink`, gold values `--gold`, holo cyan/violet accents `--foil-a`/`--foil-b`, trend colors `--up`/`--down`.
 - Fonts: Fredoka for display text, Nunito for body.
 - Signature effect: `.cardface` has a 3D tilt + rainbow holo shine driven by mousemove setting `--rx`/`--ry`/`--mx`/`--my`. New card-like elements should reuse it via `attachTilt()`.
+- Real-binder look: the page sits inside a `.binder` cover (leatherette gradient + dashed-border "stitching"), bound by a `.spine` gutter and metal `.ring` D-rings. Each card sits behind a glossy clear sleeve (`.cardface::before`). Turning a page runs a hinged 3D flip — `flip(dir)` swaps the page content while it's edge-on, using the `turnOut*/turnIn*` keyframes, plus a soft synthesized paper riffle from `playFlip()` (Web Audio, no sound file). Keep the grid columns as `minmax(0,1fr)` so long card names ellipsis-clip instead of overflowing on mobile.
 
 ## Feature ideas the owner is interested in
-A search bar, page-flip sound effects, and a rarity filter. (The "add a card" form is done — see above.)
+A search bar and a rarity filter. (The "add a card" form, the real-binder styling, and page-flip sound are done.)
