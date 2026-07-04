@@ -6,7 +6,7 @@ A one-file web app (`pokemon-binder.html`) that shows the owner's real Pokémon 
 ## Rules
 - Keep everything in the single `pokemon-binder.html` file (HTML + CSS + JS together). No build tools, no npm, no frameworks.
 - Test by opening the file in a browser (double-click it). No server needed.
-- Don't break saved data. localStorage keys `binder.history`, `binder.meta`, and `binder.setids` hold the owner's price history built up over time. If a change needs a new data shape, migrate the old data instead of wiping it.
+- Don't break saved data. localStorage keys `binder.history`, `binder.meta`, `binder.setids`, `binder.usercards` (cards the owner added via the form), and `binder.setlist` (cached set names for the form's dropdown) hold data built up over time. If a change needs a new data shape, migrate the old data instead of wiping it.
 
 ## How the app works
 - The `CARDS` array (top of the script) is the collection. One object per card:
@@ -21,15 +21,20 @@ A one-file web app (`pokemon-binder.html`) that shows the owner's real Pokémon 
 - Prices: `history` = `{ "YYYY-MM-DD": { cardId: pricePerCopy } }`. Baseline date is 2026-07-01 with an estimated 2026-06-01 point for some cards. The Refresh button fetches TCGplayer market prices from `https://api.pokemontcg.io/v2/cards` and saves today's snapshot. Trend chips compare the newest point vs the oldest.
 - Card images come from the same API and are cached in `meta`. Cards the API doesn't know yet (very new sets) show a styled placeholder.
 - `latestPrice()` falls back to a card's `price` field if it has no history yet — so adding a new card only requires adding it to `CARDS`, nothing else.
+- The full card list is `CARDS = BUILTIN_CARDS.concat(userCards)`. `BUILTIN_CARDS` is the hard-coded list in the script; `userCards` is loaded from `binder.usercards` and holds cards the owner added through the app. `rebuildCards()` re-merges them after any add/remove.
 
-## Adding a card (the most common task)
-Append one object to `CARDS`. Example — a Gengar ex 193/162 from Temporal Forces worth $12:
+## Adding a card
+There are two ways:
+
+1. **The + Add card button (what the owner uses).** Opens a form: card name, set (dropdown built live from the API), card number (e.g. `193/162` or `SVP 165`), copies, price (blank = auto-look-up), and graded. On submit it derives `nums`/`total`/`kw`, saves the card to `binder.usercards`, fetches the picture + today's price, and shows it. Cards added this way have `user:true` and can be deleted from their detail modal (the 🗑 Remove button — only shows for `user:true` cards). Never delete `BUILTIN_CARDS` this way.
+
+2. **Editing code (for the built-in list).** Append one object to `BUILTIN_CARDS`. Example — a Gengar ex 193/162 from Temporal Forces worth $12:
 
 ```js
 {id:"gengar193", name:"Gengar ex", num:"193/162", total:162, sets:["sv5"], nums:["193"], kw:"gengar", set:"Temporal Forces", price:12}
 ```
 
-It will show "— new" for its trend until it has two price snapshots. That's expected.
+Either way it shows "— new" for its trend until it has two price snapshots. That's expected.
 
 ## Design tokens (keep the look consistent)
 - Colors live in `:root`: deep navy background `--ink`, gold values `--gold`, holo cyan/violet accents `--foil-a`/`--foil-b`, trend colors `--up`/`--down`.
@@ -37,4 +42,4 @@ It will show "— new" for its trend until it has two price snapshots. That's ex
 - Signature effect: `.cardface` has a 3D tilt + rainbow holo shine driven by mousemove setting `--rx`/`--ry`/`--mx`/`--my`. New card-like elements should reuse it via `attachTilt()`.
 
 ## Feature ideas the owner is interested in
-A search bar, an "add a card" form (so no code editing is needed), page-flip sound effects, and a rarity filter.
+A search bar, page-flip sound effects, and a rarity filter. (The "add a card" form is done — see above.)

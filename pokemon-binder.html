@@ -240,6 +240,55 @@ select{
 .hist .r{display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;padding:6px 10px;border-radius:9px;background:rgba(255,255,255,.045)}
 .hist .r .d{color:var(--dim)}
 
+/* ============ ADD BUTTON + FORM ============ */
+.toolRight{display:flex;align-items:center;gap:8px}
+#addBtn{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:13px;color:#0b1230;
+  background:linear-gradient(90deg,var(--gold),#ffb84d);
+  border:none;border-radius:10px;padding:8px 13px;cursor:pointer;white-space:nowrap;
+  box-shadow:0 5px 14px rgba(255,215,94,.3);transition:transform .15s ease, box-shadow .15s ease;
+}
+#addBtn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,184,77,.4)}
+.formModal{
+  width:100%;max-width:460px;max-height:92vh;overflow:auto;border-radius:22px;position:relative;padding:24px;
+  background:linear-gradient(160deg,#1c2758,#121a42);border:1px solid var(--line);
+  box-shadow:0 40px 90px rgba(0,0,0,.6);
+}
+.formModal h2{font-family:'Fredoka',sans-serif;font-weight:700;font-size:23px;padding-right:36px}
+.formHint{color:var(--dim);font-weight:700;font-size:13px;margin:4px 0 16px;line-height:1.4}
+#addForm{display:flex;flex-direction:column;gap:13px}
+.fld{display:flex;flex-direction:column;gap:5px}
+.fld>span{font-size:12.5px;font-weight:900;color:var(--text);letter-spacing:.02em}
+.fld>span b{color:var(--foil-a)}
+.fld small{font-size:11px;color:var(--dim);font-weight:700}
+.fld input,.fld select{
+  font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:var(--text);
+  background:var(--ink2);border:1px solid var(--line);border-radius:11px;padding:11px 12px;width:100%;
+}
+.fld input:focus,.fld select:focus{outline:2px solid var(--foil-a);outline-offset:1px;border-color:transparent}
+.fld input::placeholder{color:var(--dim);font-weight:700}
+.fldRow{display:flex;gap:12px}
+.fldRow .fld{flex:1}
+.fld.narrow{flex:0 0 34%}
+.formErr{color:var(--down);font-size:12.5px;font-weight:800;min-height:0;line-height:1.4}
+.formErr.on{min-height:auto}
+.formBtns{display:flex;gap:10px;margin-top:4px}
+.btnGhost,.btnGo{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;border-radius:12px;
+  padding:12px 16px;cursor:pointer;border:none;flex:1;transition:transform .15s ease, box-shadow .15s ease;
+}
+.btnGhost{background:rgba(255,255,255,.08);border:1px solid var(--line);color:var(--text)}
+.btnGhost:hover{background:rgba(255,255,255,.14)}
+.btnGo{color:#0b1230;background:linear-gradient(90deg,var(--foil-a),var(--foil-b));box-shadow:0 6px 18px rgba(125,249,255,.28)}
+.btnGo:hover{transform:translateY(-1px);box-shadow:0 9px 24px rgba(199,125,255,.4)}
+.btnGo:disabled{opacity:.6;cursor:wait;transform:none}
+.btnRemove{
+  margin-top:14px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12.5px;
+  background:rgba(255,93,115,.12);border:1px solid rgba(255,93,115,.35);color:var(--down);
+  border-radius:10px;padding:9px 12px;cursor:pointer;width:100%;
+}
+.btnRemove:hover{background:rgba(255,93,115,.22)}
+
 /* ============ TOAST / FOOTER ============ */
 .toast{
   position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);
@@ -259,6 +308,12 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
   .navBtn{width:36px;height:36px;font-size:16px}
   .modal{grid-template-columns:1fr;gap:16px;padding:16px}
   .modal .bigcard{max-width:250px;margin:0 auto}
+  .toolbar{flex-wrap:wrap;gap:8px}
+  .toolRight{width:100%;justify-content:space-between}
+  .toolRight select{flex:1}
+  .fldRow{flex-direction:column;gap:13px}
+  .fld.narrow{flex:1}
+  .formModal{padding:18px}
 }
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important;animation:none !important}
@@ -285,11 +340,14 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
 
   <div class="toolbar">
     <div class="pageLabel">Page <b id="pageNum">1</b> of <b id="pageCount">1</b></div>
-    <select id="sortSel" aria-label="Sort cards">
-      <option value="binder">Binder order</option>
-      <option value="value">Highest value first</option>
-      <option value="trend">Biggest movers first</option>
-    </select>
+    <div class="toolRight">
+      <select id="sortSel" aria-label="Sort cards">
+        <option value="binder">Binder order</option>
+        <option value="value">Highest value first</option>
+        <option value="trend">Biggest movers first</option>
+      </select>
+      <button id="addBtn">＋ Add card</button>
+    </div>
   </div>
 
   <div class="binderRow">
@@ -311,6 +369,51 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
 <div class="overlay" id="overlay">
   <div class="modal" role="dialog" aria-modal="true" id="modalBox"></div>
 </div>
+
+<div class="overlay" id="formOverlay">
+  <div class="formModal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <button class="mClose" id="formClose" aria-label="Close">✕</button>
+    <h2 id="formTitle">Add a card</h2>
+    <p class="formHint">Fill in what you know. We'll look up the picture and today's price for you.</p>
+    <form id="addForm" novalidate>
+      <label class="fld">
+        <span>Card name <b>*</b></span>
+        <input id="fName" type="text" placeholder="e.g. Gengar ex" autocomplete="off" required>
+      </label>
+      <label class="fld">
+        <span>Set</span>
+        <select id="fSet"><option value="">Loading sets…</option></select>
+        <small>Pick the set this card is from — helps us find the right picture.</small>
+      </label>
+      <div class="fldRow">
+        <label class="fld">
+          <span>Card number <b>*</b></span>
+          <input id="fNum" type="text" placeholder="e.g. 193/162 or SVP 165" autocomplete="off" required>
+        </label>
+        <label class="fld narrow">
+          <span>Copies</span>
+          <input id="fQty" type="number" min="1" step="1" value="1">
+        </label>
+      </div>
+      <div class="fldRow">
+        <label class="fld">
+          <span>Price each (USD)</span>
+          <input id="fPrice" type="number" min="0" step="0.01" placeholder="leave blank to look it up">
+        </label>
+        <label class="fld narrow">
+          <span>Graded?</span>
+          <input id="fGraded" type="text" placeholder="e.g. PSA 8" autocomplete="off">
+        </label>
+      </div>
+      <div class="formErr" id="formErr"></div>
+      <div class="formBtns">
+        <button type="button" class="btnGhost" id="formCancel">Cancel</button>
+        <button type="submit" class="btnGo" id="formSubmit">Add to binder</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -319,7 +422,7 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
 /* ================= YOUR CARDS ================= */
 /* price = market value per copy (USD), researched 2026-07-01
    prev  = estimated value ~30 days earlier (from published 30-day change data) */
-const CARDS = [
+const BUILTIN_CARDS = [
  {id:"lucario160", name:"Mega Lucario ex", num:"160/132", total:132, sets:["me1","me01"], nums:["160"], kw:"lucario", set:"Mega Evolution", price:15, prev:17.6},
  {id:"absol180", name:"Mega Absol ex", num:"180/132", total:132, sets:["me1","me01"], nums:["180"], kw:"absol", set:"Mega Evolution", price:70},
  {id:"pidgeot217", name:"Pidgeot ex", num:"217/197", total:197, sets:["sv3"], nums:["217"], kw:"pidgeot", set:"Obsidian Flames", price:4},
@@ -357,6 +460,12 @@ const store = {
   get(k){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : (mem[k]||null); }catch(e){ return mem[k]||null; } },
   set(k,v){ mem[k]=v; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
+
+/* Cards YOU add through the "+ Add card" button are saved here and merged with
+   the built-in list. This is what lets you grow your binder without editing code. */
+let userCards = store.get("binder.usercards") || [];
+let CARDS = BUILTIN_CARDS.concat(userCards);
+function rebuildCards(){ CARDS = BUILTIN_CARDS.concat(userCards); }
 
 /* history = { "YYYY-MM-DD": { cardId: pricePerCopy } } */
 let history = store.get("binder.history");
@@ -659,13 +768,148 @@ function openModal(c){
       (c.bulk
         ? '<div class="note">Your stack of commons and uncommons ('+escapeHtml(c.num)+'), valued as one lot. Flip through it sometime \u2014 hidden gems happen!</div>'
         : '<div class="chartBox"><h3>Price history</h3>'+chartSVG(s)+'</div><div class="hist">'+histRows(s)+'</div>')+
+      (c.user?'<button class="btnRemove" id="removeCard">🗑 Remove this card from my binder</button>':"")+
     '</div>';
   box.querySelector(".mClose").onclick=closeModal;
+  const rm=box.querySelector("#removeCard");
+  if(rm) rm.onclick=()=>removeCard(c);
   const face=box.querySelector(".bigcard .cardface");
   if(face) attachTilt(face);
   $("#overlay").classList.add("on");
 }
 function closeModal(){ $("#overlay").classList.remove("on"); }
+
+/* ================= ADD-A-CARD FORM ================= */
+let setList = store.get("binder.setlist") || [];
+
+async function loadSets(){
+  const sel = $("#fSet");
+  if(!setList.length){
+    try{
+      const r = await fetch("https://api.pokemontcg.io/v2/sets?pageSize=250");
+      if(r.ok){
+        const j = await r.json();
+        setList = (j.data||[]).map(s=>({id:s.id, name:s.name, d:s.releaseDate||""}));
+        setList.sort((a,b)=> b.d.localeCompare(a.d));   // newest sets first
+        store.set("binder.setlist", setList);
+      }
+    }catch(e){}
+  }
+  if(!setList.length){
+    sel.innerHTML = '<option value="">(couldn’t load sets — you can still add by number)</option>';
+    return;
+  }
+  sel.innerHTML = '<option value="">— choose a set —</option>' +
+    setList.map(s=>'<option value="'+escapeHtml(s.id)+'">'+escapeHtml(s.name)+'</option>').join("");
+}
+
+/* turn "193/162" or "SVP 165" or "023" into number-variants + printed total */
+function parseNum(raw){
+  raw = raw.trim();
+  let total = null; const nums = [];
+  if(raw.includes("/")){
+    const parts = raw.split("/");
+    const n = parts[0].trim();
+    if(n) nums.push(n);
+    const nz = n.replace(/^0+/, ""); if(nz && nz!==n) nums.push(nz);
+    const t = parseInt((parts[1]||"").replace(/[^\d]/g,""), 10);
+    if(!isNaN(t)) total = t;
+  } else {
+    const noSpace = raw.replace(/\s+/g, "");
+    if(noSpace) nums.push(noSpace);
+    const trail = (raw.match(/(\d+)\s*$/)||[])[1];
+    if(trail){ nums.push(trail); const nz = trail.replace(/^0+/,""); if(nz && nz!==trail) nums.push(nz); }
+    nums.push(raw);
+  }
+  return { nums:[...new Set(nums.filter(Boolean))], total };
+}
+
+/* pick the most distinctive word as the disambiguating keyword */
+const KW_STOP = new Set(["mega","ex","vstar","vmax","star","the","team","rocket","and"]);
+function deriveKw(name){
+  const words = name.toLowerCase().replace(/[^a-z\s]/g," ").split(/\s+/)
+    .filter(w=> w.length>=3 && !KW_STOP.has(w));
+  words.sort((a,b)=> b.length-a.length);
+  return words[0] || "";
+}
+
+async function fetchAndStore(c){
+  const r = await fetchCard(c);
+  if(!r) return null;
+  meta[c.id] = {img:r.img, name:r.name, rarity:r.rarity, setName:r.setName};
+  store.set("binder.meta", meta);
+  if(!c.graded && r.price!=null){
+    const day = Object.assign({}, history[todayKey()]||{});
+    day[c.id] = r.price;
+    history[todayKey()] = day;
+    store.set("binder.history", history);
+  }
+  return r;
+}
+
+function openAddForm(){
+  const f = $("#addForm"); f.reset(); $("#fQty").value = 1;
+  $("#formErr").textContent = ""; $("#formErr").classList.remove("on");
+  $("#formSubmit").disabled = false; $("#formSubmit").textContent = "Add to binder";
+  $("#formOverlay").classList.add("on");
+  loadSets();
+  setTimeout(()=>$("#fName").focus(), 60);
+}
+function closeAddForm(){ $("#formOverlay").classList.remove("on"); }
+
+async function submitAdd(e){
+  e.preventDefault();
+  const errEl = $("#formErr");
+  const fail = m => { errEl.textContent = m; errEl.classList.add("on"); };
+  const name    = $("#fName").value.trim();
+  const numRaw  = $("#fNum").value.trim();
+  const qty     = Math.max(1, parseInt($("#fQty").value,10) || 1);
+  const priceStr= $("#fPrice").value.trim();
+  const graded  = $("#fGraded").value.trim();
+  const setId   = $("#fSet").value || null;
+
+  if(!name)   return fail("Please type the card’s name.");
+  if(!numRaw) return fail("Please type the card number (like 193/162).");
+  let price = priceStr==="" ? null : parseFloat(priceStr);
+  if(price!=null && (isNaN(price) || price<0)) return fail("Price should be a number like 12 or 4.50.");
+  if(graded && price==null) return fail("For a graded card, please enter its price — graded cards don’t auto-update.");
+
+  const {nums, total} = parseNum(numRaw);
+  const setName = setId ? ((setList.find(s=>s.id===setId)||{}).name || "") : "";
+  const card = {
+    id: "u"+Date.now().toString(36),
+    name, num: numRaw, set: setName || "(unknown set)",
+    nums, kw: deriveKw(name), price: (price!=null ? price : 0), user: true
+  };
+  if(total!=null) card.total = total;
+  if(setId)       card.sets = [setId];
+  if(qty>1)       card.qty  = qty;
+  if(graded)      card.graded = graded;
+
+  userCards.push(card);
+  store.set("binder.usercards", userCards);
+  rebuildCards();
+
+  const btn = $("#formSubmit"); btn.disabled = true; btn.textContent = "Looking it up…";
+  await fetchAndStore(card);            // grab picture + today's price
+  closeAddForm();
+  sortMode = "binder"; $("#sortSel").value = "binder";
+  pageIdx = Math.ceil(CARDS.length/9) - 1;   // jump to the page it landed on
+  render();
+  toast('Added “'+displayName(card)+'” to your binder ✔');
+}
+
+function removeCard(c){
+  if(!confirm('Remove “'+displayName(c)+'” from your binder?')) return;
+  userCards = userCards.filter(x=>x.id!==c.id);
+  store.set("binder.usercards", userCards);
+  rebuildCards();
+  closeModal();
+  const pages = Math.max(1, Math.ceil(CARDS.length/9));
+  if(pageIdx > pages-1) pageIdx = pages-1;
+  render();
+  toast("Removed from your binder.");
+}
 
 /* ================= TOAST + WIRING ================= */
 let toastT;
@@ -677,9 +921,10 @@ function toast(msg){
   toastT=setTimeout(()=>t.classList.remove("on"), 6000);
 }
 $("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeModal(); });
+$("#formOverlay").addEventListener("click",e=>{ if(e.target.id==="formOverlay") closeAddForm(); });
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ closeModal(); return; }
-  if($("#overlay").classList.contains("on")) return;
+  if(e.key==="Escape"){ closeModal(); closeAddForm(); return; }
+  if($("#overlay").classList.contains("on") || $("#formOverlay").classList.contains("on")) return;
   if(e.key==="ArrowLeft" && !$("#prevBtn").disabled){ pageIdx--; flip(); }
   if(e.key==="ArrowRight" && !$("#nextBtn").disabled){ pageIdx++; flip(); }
 });
@@ -687,6 +932,10 @@ $("#prevBtn").onclick=()=>{ pageIdx--; flip(); };
 $("#nextBtn").onclick=()=>{ pageIdx++; flip(); };
 $("#sortSel").onchange=e=>{ sortMode=e.target.value; pageIdx=0; render(); };
 $("#refreshBtn").onclick=refreshAll;
+$("#addBtn").onclick=openAddForm;
+$("#formClose").onclick=closeAddForm;
+$("#formCancel").onclick=closeAddForm;
+$("#addForm").addEventListener("submit",submitAdd);
 
 render();
 refreshAll();
