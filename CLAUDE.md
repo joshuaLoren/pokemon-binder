@@ -4,8 +4,8 @@
 A one-file web app (`pokemon-binder.html`) that shows the owner's real Pokémon card collection like a 9-pocket binder, with live prices and trend charts. The owner is a beginner who is learning — when you make changes, explain what you did in simple, friendly terms.
 
 ## Rules
-- Keep everything in the single `pokemon-binder.html` file (HTML + CSS + JS together). No build tools, no npm, no frameworks.
-- Test by opening the file in a browser (double-click it). No server needed.
+- Keep everything in the single `pokemon-binder.html` file (HTML + CSS + JS together). No build tools, no npm, no frameworks. One runtime exception: the card **scanner** lazily loads Tesseract.js from a CDN, but only the first time someone taps Scan — the app itself ships as one file and works fully without it.
+- Test by opening the file in a browser (double-click it). No server needed. (The scanner needs internet the first time to fetch the OCR engine.)
 - Don't break saved data. localStorage keys `binder.history`, `binder.meta`, `binder.setids`, `binder.usercards` (cards the owner added via the form), and `binder.setlist` (cached set names for the form's dropdown) hold data built up over time. If a change needs a new data shape, migrate the old data instead of wiping it.
 
 ## How the app works
@@ -36,6 +36,8 @@ There are two ways:
 
 Either way it shows "— new" for its trend until it has two price snapshots. That's expected.
 
+3. **Scanning with the camera (📷 Scan button).** Captures a photo (`#scanInput`, `capture="environment"`), downscales it, runs on-device OCR (`loadTesseract()` → Tesseract.js), and pulls the printed **name + collector number** out of the text (`lookupByOcr`). It queries the same API by number (filtered by printed total) — falling back to promo codes, then a name search — and shows the closest matches for the owner to confirm (`showScanResults`). Tapping one calls `confirmScanned(apiCard)`, which builds the same card shape as the form and stores image + today's price. It's suggest-and-confirm on purpose: OCR is imperfect, so it never blind-adds; "type it in" drops back to the manual form.
+
 ## Design tokens (keep the look consistent)
 - Colors live in `:root`: deep navy background `--ink`, gold values `--gold`, holo cyan/violet accents `--foil-a`/`--foil-b`, trend colors `--up`/`--down`.
 - Fonts: Fredoka for display text, Nunito for body.
@@ -43,4 +45,4 @@ Either way it shows "— new" for its trend until it has two price snapshots. Th
 - Real-binder look: the page sits inside a `.binder` cover (leatherette gradient + dashed-border "stitching"), bound by a `.spine` gutter and metal `.ring` D-rings. Each card sits behind a glossy clear sleeve (`.cardface::before`). Turning a page runs a hinged 3D flip — `flip(dir)` swaps the page content while it's edge-on, using the `turnOut*/turnIn*` keyframes, plus a soft synthesized paper riffle from `playFlip()` (Web Audio, no sound file). Keep the grid columns as `minmax(0,1fr)` so long card names ellipsis-clip instead of overflowing on mobile.
 
 ## Feature ideas the owner is interested in
-A search bar and a rarity filter. (The "add a card" form, the real-binder styling, and page-flip sound are done.)
+A search bar and a rarity filter. (The "add a card" form, camera card-scanner, real-binder styling, and page-flip sound are done.) A "near its high / should I sell?" signal + longer chart windows were discussed but not built.

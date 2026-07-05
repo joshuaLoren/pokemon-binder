@@ -339,6 +339,46 @@ select{
 }
 .btnRemove:hover{background:rgba(255,93,115,.22)}
 
+/* ============ SCAN A CARD ============ */
+#scanBtn{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:13px;color:var(--text);
+  background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:10px;
+  padding:8px 12px;cursor:pointer;white-space:nowrap;transition:background .15s ease;
+}
+#scanBtn:hover{background:rgba(255,255,255,.15)}
+.btnScan{
+  width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;color:#0b1230;
+  background:linear-gradient(90deg,var(--foil-a),var(--foil-b));
+  border:none;border-radius:14px;padding:14px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(125,249,255,.3);transition:transform .15s ease, box-shadow .15s ease;
+}
+.btnScan:hover{transform:translateY(-1px);box-shadow:0 11px 26px rgba(199,125,255,.4)}
+.orDiv{display:flex;align-items:center;gap:10px;color:var(--dim);font-weight:800;font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;margin:14px 2px 2px}
+.orDiv::before,.orDiv::after{content:"";flex:1;height:1px;background:var(--line)}
+.scanStatus{display:flex;align-items:center;gap:12px;font-weight:800;color:var(--text);margin-top:16px}
+.spinner{
+  width:26px;height:26px;border-radius:50%;flex:none;
+  border:3px solid rgba(255,255,255,.15);border-top-color:var(--foil-a);animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scanThumbWrap{text-align:center}
+.scanThumb{max-width:130px;border-radius:12px;display:inline-block;margin:8px auto 0;box-shadow:0 10px 24px rgba(0,0,0,.5)}
+.scanList{display:flex;flex-direction:column;gap:10px;margin:10px 0 6px}
+.scanCand{
+  display:flex;align-items:center;gap:12px;text-align:left;width:100%;padding:8px;
+  border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);cursor:pointer;color:var(--text);
+  transition:background .15s ease, transform .15s ease;
+}
+.scanCand:hover{background:rgba(255,255,255,.11);transform:translateY(-1px)}
+.scanCard{flex:none;width:50px;aspect-ratio:63/88;border-radius:6px;overflow:hidden;background:var(--ink2)}
+.scanCard img{width:100%;height:100%;object-fit:cover;display:block}
+.scanMeta{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.scanMeta b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scanMeta small{color:var(--dim);font-weight:800;font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scanPrice{color:var(--gold);font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px}
+.scanPick{flex:none;font-family:'Fredoka',sans-serif;font-weight:600;font-size:12.5px;color:#0b1230;background:linear-gradient(90deg,var(--foil-a),var(--foil-b));padding:8px 11px;border-radius:999px;white-space:nowrap}
+
 /* ============ TOAST / FOOTER ============ */
 .toast{
   position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);
@@ -402,6 +442,7 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
         <option value="value">Highest value first</option>
         <option value="trend">Biggest movers first</option>
       </select>
+      <button id="scanBtn">📷 Scan</button>
       <button id="addBtn">＋ Add card</button>
     </div>
   </div>
@@ -434,7 +475,9 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
   <div class="formModal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
     <button class="mClose" id="formClose" aria-label="Close">✕</button>
     <h2 id="formTitle">Add a card</h2>
-    <p class="formHint">Fill in what you know. We'll look up the picture and today's price for you.</p>
+    <p class="formHint">Snap a photo and we'll try to find it for you — or fill in what you know below.</p>
+    <button type="button" class="btnScan" id="formScanBtn">📷 Scan a card with your camera</button>
+    <div class="orDiv">or type it in</div>
     <form id="addForm" novalidate>
       <label class="fld">
         <span>Card name <b>*</b></span>
@@ -473,6 +516,11 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
     </form>
   </div>
 </div>
+
+<div class="overlay" id="scanOverlay">
+  <div class="formModal" role="dialog" aria-modal="true" id="scanBox"></div>
+</div>
+<input id="scanInput" type="file" accept="image/*" capture="environment" hidden>
 
 <div class="toast" id="toast"></div>
 
@@ -1007,6 +1055,200 @@ function removeCard(c){
   toast("Removed from your binder.");
 }
 
+/* ================= SCAN A CARD (camera + on-device OCR) ================= */
+/* Reads the card's printed name + collector number with Tesseract.js, then looks
+   it up through the same Pokémon TCG API the Add form uses. Suggest-and-confirm:
+   OCR is never perfect, so we show the closest matches for you to tap. */
+
+const OCR_STOP = new Set(("the and this your you put each during turn attack ability weakness resistance "+
+  "retreat basic stage evolves from when pokemon pokémon energy damage rule illus card cards player "+
+  "prize knocked out benched active first flip coin heads tails may take can into any all does more "+
+  "than plus with for has have are will opponent trainer item supporter stadium").split(/\s+/));
+
+let tesseractLoading=null;
+function loadTesseract(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  if(tesseractLoading) return tesseractLoading;
+  tesseractLoading = new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.onload=()=>res(window.Tesseract);
+    s.onerror=()=>{ tesseractLoading=null; rej(new Error("load failed")); };
+    document.head.appendChild(s);
+  });
+  return tesseractLoading;
+}
+
+/* shrink the phone photo before OCR — faster and easier on memory */
+function prepImage(file, maxDim){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const scale=Math.min(1, maxDim/Math.max(img.width,img.height));
+      const w=Math.max(1,Math.round(img.width*scale)), h=Math.max(1,Math.round(img.height*scale));
+      const cv=document.createElement("canvas"); cv.width=w; cv.height=h;
+      cv.getContext("2d").drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(img.src);
+      try{ res({full:cv.toDataURL("image/jpeg",.9), thumb:cv.toDataURL("image/jpeg",.5)}); }
+      catch(e){ res(null); }
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(img.src); res(null); };
+    img.src=URL.createObjectURL(file);
+  });
+}
+
+function triggerScan(){ const inp=$("#scanInput"); inp.value=""; inp.click(); }
+function closeScan(){ $("#scanOverlay").classList.remove("on"); }
+function scanHeader(title){
+  return '<button class="mClose" id="scanClose" aria-label="Close">✕</button><h2>'+escapeHtml(title)+'</h2>';
+}
+function wireScanCommon(){
+  const c=$("#scanClose"); if(c) c.onclick=closeScan;
+  const r=$("#scanRetry"); if(r) r.onclick=()=>{ closeScan(); triggerScan(); };
+  const m=$("#scanManual"); if(m) m.onclick=()=>{ closeScan(); openAddForm(); };
+}
+function setScanMsg(msg,pct){
+  const e=$("#scanMsg"); if(e) e.textContent=msg;
+  const b=$("#scanBar"); if(b && pct!=null) b.style.width=pct+"%";
+}
+
+async function runScan(file){
+  if(!file) return;
+  $("#scanBox").innerHTML = scanHeader("Scan a card")+
+    '<div class="scanThumbWrap" id="scanThumbWrap"></div>'+
+    '<div class="scanStatus"><div class="spinner"></div><span id="scanMsg">Getting your photo ready…</span></div>'+
+    '<div class="bar" style="margin-top:14px"><i id="scanBar" style="width:4%"></i></div>';
+  $("#scanOverlay").classList.add("on");
+  wireScanCommon();
+
+  const prepped = await prepImage(file, 1600);
+  if(!prepped){ return scanFail("Couldn’t open that photo. Try again, or type the card in."); }
+  $("#scanThumbWrap").innerHTML='<img class="scanThumb" src="'+prepped.thumb+'" alt="your photo">';
+
+  let Tess;
+  try{ setScanMsg("Loading the scanner…",12); Tess=await loadTesseract(); }
+  catch(e){ return scanFail("Couldn’t load the scanner — check your internet, then try again. Or type the card in."); }
+
+  let text="";
+  try{
+    setScanMsg("Reading your card…",22);
+    const r=await Tess.recognize(prepped.full,"eng",{
+      logger:m=>{ if(m.status==="recognizing text") setScanMsg("Reading your card…", 22+Math.round((m.progress||0)*60)); }
+    });
+    text=(r&&r.data&&r.data.text)||"";
+  }catch(e){ return scanFail("Had trouble reading that one. Try again in better light, or type it in."); }
+
+  setScanMsg("Looking it up…",88);
+  let found;
+  try{ found=await lookupByOcr(text); }catch(e){ found={candidates:[]}; }
+  showScanResults(found.candidates||[]);
+}
+
+async function lookupByOcr(text){
+  const nums=[]; let m;
+  const numRe=/(\d{1,3})\s*\/\s*(\d{1,3})/g;
+  while((m=numRe.exec(text))) nums.push({num:m[1], total:parseInt(m[2],10)});
+  const promoRe=/\b(SWSH|SVP|GG|TG|SM|XY|SV)\s*[-\s]?\s*0*(\d{1,3})\b/ig;
+  const promos=[]; let p;
+  while((p=promoRe.exec(text))) promos.push({code:p[1].toUpperCase(), num:p[2]});
+  const nameWords=(text.toLowerCase().match(/[a-z][a-z'’.\-]{2,}/g)||[]).filter(w=>!OCR_STOP.has(w));
+
+  const seen={}, candidates=[];
+  async function addFrom(q, totalFilter){
+    const data=await apiGet(q);
+    if(!data) return;
+    data.forEach(x=>{
+      if(totalFilter && !(x.set && x.set.printedTotal===totalFilter)) return;
+      if(seen[x.id]) return; seen[x.id]=1; candidates.push(x);
+    });
+  }
+  for(const n of nums.slice(0,3)){ await addFrom("number:"+n.num, n.total); await sleep(120); }
+  for(const pr of promos.slice(0,2)){ await addFrom('number:"'+pr.code+pr.num+'"'); await addFrom("number:"+pr.num); await sleep(120); }
+  if(!candidates.length && nameWords.length){
+    const w=[...nameWords].sort((a,b)=>b.length-a.length)[0];
+    await addFrom('name:"'+w.replace(/[^a-z]/g,"")+'"');
+  }
+  const score=x=>{
+    const nm=(x.name||"").toLowerCase(); let s=0;
+    nameWords.forEach(w=>{ if(nm.includes(w)) s+=2; });
+    if(pickPrice(x.tcgplayer)!=null) s+=0.5;
+    return s;
+  };
+  candidates.sort((a,b)=>score(b)-score(a));
+  return {candidates: candidates.slice(0,3)};
+}
+
+function showScanResults(cands){
+  const box=$("#scanBox");
+  if(!cands.length){
+    return scanFail("I couldn’t match that card. This works best with good light and the card held flat and filling the frame.");
+  }
+  let html=scanHeader("Is this your card?")+
+    '<p class="formHint">Tap the one that matches'+(cands.length>1?" — here are the closest.":".")+'</p><div class="scanList">';
+  cands.forEach((x,i)=>{
+    const price=pickPrice(x.tcgplayer);
+    const img=(x.images&&(x.images.small||x.images.large))||"";
+    const total=x.set&&x.set.printedTotal;
+    html+='<button type="button" class="scanCand" data-i="'+i+'">'+
+      '<span class="scanCard">'+(img?'<img src="'+img+'" alt="" loading="lazy">':'')+'</span>'+
+      '<span class="scanMeta"><b>'+escapeHtml(x.name)+'</b>'+
+        '<small>'+escapeHtml((x.set&&x.set.name)||"")+' • '+escapeHtml(x.number+(total?"/"+total:""))+'</small>'+
+        '<span class="scanPrice">'+(price!=null?money(price):"price n/a")+'</span></span>'+
+      '<span class="scanPick">Add ✓</span></button>';
+  });
+  html+='</div><div class="formBtns">'+
+    '<button type="button" class="btnGhost" id="scanRetry">Try again</button>'+
+    '<button type="button" class="btnGhost" id="scanManual">None — type it in</button></div>';
+  box.innerHTML=html;
+  box.querySelectorAll(".scanCand").forEach(btn=>{
+    btn.onclick=()=>confirmScanned(cands[+btn.dataset.i]);
+  });
+  wireScanCommon();
+}
+
+function scanFail(msg){
+  $("#scanBox").innerHTML = scanHeader("Scan a card")+
+    '<p class="formErr on" style="min-height:auto">'+escapeHtml(msg)+'</p>'+
+    '<div class="formBtns">'+
+      '<button type="button" class="btnGhost" id="scanRetry">Try again</button>'+
+      '<button type="button" class="btnGo" id="scanManual">Type it in</button></div>';
+  wireScanCommon();
+}
+
+/* turn a chosen API card into a binder card and store it (image + today's price) */
+function confirmScanned(x){
+  const total = x.set && x.set.printedTotal;
+  const card = {
+    id:"u"+Date.now().toString(36),
+    name:x.name,
+    num:x.number+(total?"/"+total:""),
+    set:(x.set&&x.set.name)||"(unknown set)",
+    nums:[x.number],
+    kw:deriveKw(x.name),
+    price:(pickPrice(x.tcgplayer)!=null?pickPrice(x.tcgplayer):0),
+    user:true
+  };
+  if(total) card.total=total;
+  if(x.set&&x.set.id) card.sets=[x.set.id];
+  userCards.push(card);
+  store.set("binder.usercards", userCards);
+  rebuildCards();
+  meta[card.id]={ img:(x.images&&(x.images.small||x.images.large))||null, name:x.name, rarity:x.rarity||"", setName:card.set };
+  store.set("binder.meta", meta);
+  const price=pickPrice(x.tcgplayer);
+  if(price!=null){
+    const day=Object.assign({}, history[todayKey()]||{});
+    day[card.id]=price; history[todayKey()]=day;
+    store.set("binder.history", history);
+  }
+  if(x.set&&x.set.id&&x.set.name){ setIds[x.set.name]=x.set.id; store.set("binder.setids", setIds); }
+  closeScan();
+  sortMode="binder"; $("#sortSel").value="binder";
+  pageIdx=Math.ceil(CARDS.length/9)-1;
+  render();
+  toast('Added “'+card.name+'” to your binder ✔');
+}
+
 /* ================= TOAST + WIRING ================= */
 let toastT;
 function toast(msg){
@@ -1018,9 +1260,10 @@ function toast(msg){
 }
 $("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeModal(); });
 $("#formOverlay").addEventListener("click",e=>{ if(e.target.id==="formOverlay") closeAddForm(); });
+$("#scanOverlay").addEventListener("click",e=>{ if(e.target.id==="scanOverlay") closeScan(); });
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ closeModal(); closeAddForm(); return; }
-  if($("#overlay").classList.contains("on") || $("#formOverlay").classList.contains("on")) return;
+  if(e.key==="Escape"){ closeModal(); closeAddForm(); closeScan(); return; }
+  if($("#overlay").classList.contains("on") || $("#formOverlay").classList.contains("on") || $("#scanOverlay").classList.contains("on")) return;
   if(e.key==="ArrowLeft" && !$("#prevBtn").disabled){ pageIdx--; flip(-1); }
   if(e.key==="ArrowRight" && !$("#nextBtn").disabled){ pageIdx++; flip(1); }
 });
@@ -1032,6 +1275,9 @@ $("#addBtn").onclick=openAddForm;
 $("#formClose").onclick=closeAddForm;
 $("#formCancel").onclick=closeAddForm;
 $("#addForm").addEventListener("submit",submitAdd);
+$("#scanBtn").onclick=triggerScan;
+$("#formScanBtn").onclick=()=>{ closeAddForm(); triggerScan(); };
+$("#scanInput").addEventListener("change",e=>{ const f=e.target.files&&e.target.files[0]; if(f) runScan(f); });
 
 render();
 refreshAll();
