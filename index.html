@@ -96,7 +96,7 @@ h1 span{background:linear-gradient(90deg,var(--foil-a),var(--foil-b));-webkit-ba
 .bar i{display:block;height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--foil-a),var(--foil-b));transition:width .25s ease}
 
 /* ============ TOOLBAR ============ */
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 10px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 4px 10px;flex-wrap:wrap}
 .pageLabel{font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;color:var(--dim)}
 .pageLabel b{color:var(--text)}
 select{
@@ -291,7 +291,7 @@ select{
 .hist .r .d{color:var(--dim)}
 
 /* ============ ADD BUTTON + FORM ============ */
-.toolRight{display:flex;align-items:center;gap:8px}
+.toolRight{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
 #addBtn{
   font-family:'Fredoka',sans-serif;font-weight:600;font-size:13px;color:#0b1230;
   background:linear-gradient(90deg,var(--gold),#ffb84d);
@@ -340,12 +340,12 @@ select{
 .btnRemove:hover{background:rgba(255,93,115,.22)}
 
 /* ============ SCAN A CARD ============ */
-#scanBtn{
+#scanBtn,#friendsBtn,#shareBtn,#videoBtn{
   font-family:'Fredoka',sans-serif;font-weight:600;font-size:13px;color:var(--text);
   background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:10px;
   padding:8px 12px;cursor:pointer;white-space:nowrap;transition:background .15s ease;
 }
-#scanBtn:hover{background:rgba(255,255,255,.15)}
+#scanBtn:hover,#friendsBtn:hover,#shareBtn:hover,#videoBtn:hover{background:rgba(255,255,255,.15)}
 .btnScan{
   width:100%;display:flex;align-items:center;justify-content:center;gap:8px;
   font-family:'Fredoka',sans-serif;font-weight:600;font-size:16px;color:#0b1230;
@@ -379,6 +379,89 @@ select{
 .scanPrice{color:var(--gold);font-family:'Fredoka',sans-serif;font-weight:600;font-size:14px}
 .scanPick{flex:none;font-family:'Fredoka',sans-serif;font-weight:600;font-size:12.5px;color:#0b1230;background:linear-gradient(90deg,var(--foil-a),var(--foil-b));padding:8px 11px;border-radius:999px;white-space:nowrap}
 
+/* ============ VIDEO INTAKE + REVIEW QUEUE ============ */
+.vidStep{display:flex;align-items:center;gap:12px;font-weight:800;margin-top:16px}
+.vidStep .num{
+  flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;
+  font-size:12px;font-weight:900;background:rgba(255,255,255,.09);border:1px solid var(--line);color:var(--dim);
+}
+.vidStep.on .num{background:linear-gradient(90deg,var(--foil-a),var(--foil-b));color:#0b1230;border:none}
+.vidStep.done .num{background:rgba(61,220,132,.2);color:var(--up);border-color:rgba(61,220,132,.4)}
+.vidStep.on span{color:var(--text)}
+.vidStep span{color:var(--dim)}
+.vidFilm{display:flex;gap:6px;overflow-x:auto;margin-top:14px;padding-bottom:4px}
+.vidFilm img{height:64px;border-radius:8px;border:1px solid var(--line);flex:none}
+.keyNote{
+  font-size:11.5px;color:var(--dim);font-weight:700;line-height:1.5;margin-top:10px;
+  background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+}
+/* one row per card the AI found — confirm, deny, or fix */
+.revList{display:flex;flex-direction:column;gap:9px;margin:14px 0 6px;max-height:52vh;overflow:auto}
+.revRow{
+  display:flex;align-items:center;gap:11px;padding:9px;border-radius:14px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);transition:opacity .15s ease, border-color .15s ease;
+}
+.revRow.off{opacity:.42}
+.revRow.off .revPick{background:rgba(255,255,255,.08);color:var(--dim)}
+.revRow.dupe{border-color:rgba(255,215,94,.45)}
+.revThumb{flex:none;width:46px;aspect-ratio:63/88;border-radius:6px;overflow:hidden;background:var(--ink2)}
+.revThumb img{width:100%;height:100%;object-fit:cover;display:block}
+.revMeta{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.revMeta b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.revMeta small{color:var(--dim);font-weight:800;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.revTags{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+.revTag{font-size:9.5px;font-weight:900;padding:2px 7px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--dim)}
+.revTag.sure{background:rgba(61,220,132,.16);color:var(--up)}
+.revTag.maybe{background:rgba(255,215,94,.16);color:var(--gold)}
+.revTag.dupe{background:rgba(255,215,94,.16);color:var(--gold)}
+.revBtns{flex:none;display:flex;gap:5px}
+.revPick,.revFix{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:12px;border:none;cursor:pointer;
+  border-radius:999px;padding:8px 10px;white-space:nowrap;
+}
+.revPick{color:#0b1230;background:linear-gradient(90deg,var(--foil-a),var(--foil-b))}
+.revFix{background:rgba(255,255,255,.09);border:1px solid var(--line);color:var(--text)}
+.revFix:hover{background:rgba(255,255,255,.16)}
+.revSum{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;font-size:13px;margin-top:4px}
+.revSum .grow{margin-right:auto;color:var(--dim)}
+
+/* ============ SHARE + FRIENDS ============ */
+/* the banner that appears while you're peeking at someone else's binder */
+.visitBar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:11px 14px;margin:0 0 14px;border-radius:16px;
+  background:linear-gradient(90deg, rgba(125,249,255,.14), rgba(199,125,255,.14));
+  border:1px solid var(--line);font-weight:800;font-size:13.5px;
+}
+.visitBar[hidden]{display:none}
+.visitBar .vNote{margin-right:auto}
+.btnMini{
+  font-family:'Fredoka',sans-serif;font-weight:600;font-size:13px;color:var(--text);
+  background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:999px;
+  padding:8px 13px;cursor:pointer;white-space:nowrap;transition:background .15s ease, transform .15s ease;
+}
+.btnMini:hover{background:rgba(255,255,255,.15);transform:translateY(-1px)}
+.btnMini:disabled{opacity:.6;cursor:default;transform:none}
+.btnMini.go{color:#0b1230;background:linear-gradient(90deg,var(--foil-a),var(--foil-b));border:none;box-shadow:0 5px 14px rgba(125,249,255,.25)}
+.shareOut{display:none;flex-direction:column;gap:10px;margin-top:16px}
+.shareOut.on{display:flex}
+.linkRow{display:flex;gap:8px;align-items:center}
+.linkRow input{
+  flex:1;min-width:0;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--text);
+  background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:10px 11px;
+}
+.friendList{display:flex;flex-direction:column;gap:10px;margin:14px 0 4px}
+.friendRow{
+  display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:14px;
+  background:rgba(255,255,255,.05);border:1px solid var(--line);
+}
+.friendRow .fMeta{flex:1;min-width:0}
+.friendRow .fMeta b{font-size:14.5px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.friendRow .fMeta small{color:var(--dim);font-weight:800;font-size:11.5px}
+.friendRow .fDel{background:none;border:none;color:var(--down);font-size:15px;cursor:pointer;padding:6px}
+/* visiting a shared binder = look, don't touch: hide the owner-only buttons */
+.visiting #refreshBtn,.visiting #scanBtn,.visiting #addBtn,.visiting #shareBtn,.visiting #videoBtn{display:none}
+
 /* ============ TOAST / FOOTER ============ */
 .toast{
   position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(90px);
@@ -405,7 +488,7 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
   .modal{grid-template-columns:1fr;gap:16px;padding:16px}
   .modal .bigcard{max-width:250px;margin:0 auto}
   .toolbar{flex-wrap:wrap;gap:8px}
-  .toolRight{width:100%;justify-content:space-between}
+  .toolRight{width:100%;justify-content:space-between;flex-wrap:wrap}
   .toolRight select{flex:1}
   .fldRow{flex-direction:column;gap:13px}
   .fld.narrow{flex:1}
@@ -421,7 +504,7 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
 <div class="wrap">
 
   <header>
-    <div class="logo"><div class="ball"></div><h1>My <span>Pokémon</span> Binder</h1></div>
+    <div class="logo"><div class="ball"></div><h1 id="pageH1">My <span>Pokémon</span> Binder</h1></div>
     <div class="stats">
       <div class="stat">
         <div class="label">Collection value</div>
@@ -434,6 +517,8 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
     <div class="progress" id="progress"><span id="progText">Fetching…</span><div class="bar"><i id="progBar"></i></div></div>
   </header>
 
+  <div class="visitBar" id="visitBar" hidden></div>
+
   <div class="toolbar">
     <div class="pageLabel">Page <b id="pageNum">1</b> of <b id="pageCount">1</b></div>
     <div class="toolRight">
@@ -442,6 +527,9 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
         <option value="value">Highest value first</option>
         <option value="trend">Biggest movers first</option>
       </select>
+      <button id="friendsBtn">👥 Friends</button>
+      <button id="shareBtn">📤 Share</button>
+      <button id="videoBtn">🎬 Video</button>
       <button id="scanBtn">📷 Scan</button>
       <button id="addBtn">＋ Add card</button>
     </div>
@@ -521,6 +609,18 @@ footer{margin-top:22px;text-align:center;font-size:11.5px;font-weight:700;color:
   <div class="formModal" role="dialog" aria-modal="true" id="scanBox"></div>
 </div>
 <input id="scanInput" type="file" accept="image/*" capture="environment" hidden>
+
+<div class="overlay" id="videoOverlay">
+  <div class="formModal" role="dialog" aria-modal="true" id="videoBox"></div>
+</div>
+<input id="videoInput" type="file" accept="video/*" hidden>
+
+<div class="overlay" id="shareOverlay">
+  <div class="formModal" role="dialog" aria-modal="true" id="shareBox"></div>
+</div>
+<div class="overlay" id="friendsOverlay">
+  <div class="formModal" role="dialog" aria-modal="true" id="friendsBox"></div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -615,10 +715,10 @@ function trendOf(id){
   if(s.length<2 || s[0].v===0) return null;
   return (s[s.length-1].v - s[0].v)/s[0].v*100;
 }
-function cardValue(c){ return latestPrice(c.id) * (c.qty||1); }
-function totalValue(){ return CARDS.reduce((s,c)=>s+cardValue(c),0); }
+function cardValue(c){ if(c._v) return (c.price||0) * (c.qty||1); return latestPrice(c.id) * (c.qty||1); }
+function totalValue(){ return (VIEW ? VIEW.cards : CARDS).reduce((s,c)=>s+cardValue(c),0); }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch])); }
-function displayName(c){ const m=meta[c.id]; return (c.reveal && m && m.name) ? m.name : c.name; }
+function displayName(c){ if(c._v) return c.name; const m=meta[c.id]; return (c.reveal && m && m.name) ? m.name : c.name; }
 
 /* ================= LIVE PRICES (Pok\u00e9mon TCG API) ================= */
 const API = "https://api.pokemontcg.io/v2/cards";
@@ -680,6 +780,7 @@ async function fetchCard(c){
   return null;
 }
 async function refreshAll(){
+  refreshedOnce = true;
   const btn=$("#refreshBtn"); btn.disabled=true;
   const prog=$("#progress"), bar=$("#progBar"), txt=$("#progText");
   prog.classList.add("on"); bar.style.width="0%";
@@ -719,7 +820,7 @@ async function refreshAll(){
 /* ================= RENDER ================= */
 let pageIdx=0, sortMode="binder", shownTotal=0;
 function orderedCards(){
-  const arr=[...CARDS];
+  const arr = VIEW ? [...VIEW.cards] : [...CARDS];
   if(sortMode==="value") arr.sort((a,b)=>cardValue(b)-cardValue(a));
   if(sortMode==="trend") arr.sort((a,b)=>Math.abs(trendOf(b.id)||0)-Math.abs(trendOf(a.id)||0));
   return arr;
@@ -732,7 +833,7 @@ function trendChip(id){
   return '<span class="trend '+(up?"up":"down")+'">'+(up?"\u25b2":"\u25bc")+" "+Math.abs(t).toFixed(0)+"%</span>";
 }
 function faceHTML(c){
-  const m=meta[c.id]||{};
+  const m = c._v ? {img:c._img} : (meta[c.id]||{});
   if(c.bulk){
     return '<div class="stack"><i></i><i></i><i><b>\u00d7'+c.bulk+'</b><small>'+escapeHtml(c.num)+'</small></i></div>';
   }
@@ -790,7 +891,7 @@ function render(){
         faceHTML(c)+
       '</div>'+
       '<div class="cap"><div class="nm">'+escapeHtml(displayName(c))+'</div>'+
-      '<div class="row"><span class="pr">'+money(cardValue(c))+'</span>'+trendChip(c.id)+'</div></div>';
+      '<div class="row"><span class="pr">'+money(cardValue(c))+'</span>'+(VIEW?"":trendChip(c.id))+'</div></div>';
     const face=pk.querySelector(".cardface");
     attachTilt(face);
     face.addEventListener("click",()=>openModal(c));
@@ -798,13 +899,19 @@ function render(){
     g.appendChild(pk);
   });
   animateTotal(totalValue());
-  $("#countChip").textContent=CARDS.reduce((s,c)=>s+(c.bulk||c.qty||1),0)+" cards";
-  const firstTot=CARDS.reduce((s,c)=>{ const f=firstPrice(c.id); return s+(f!=null?f:c.price)*(c.qty||1); },0);
-  const diff=totalValue()-firstTot, tEl=$("#totalTrend");
-  if(Math.abs(diff)<0.5){ tEl.textContent="holding steady"; tEl.style.color="var(--dim)"; }
-  else{
-    tEl.textContent=(diff>0?"\u25b2 +$":"\u25bc \u2212$")+fmtNum(Math.abs(diff))+" since "+prettyDate(dates()[0]);
-    tEl.style.color=diff>0?"var(--up)":"var(--down)";
+  $("#countChip").textContent=(VIEW?VIEW.cards:CARDS).reduce((s,c)=>s+(c.bulk||c.qty||1),0)+" cards";
+  const tEl=$("#totalTrend");
+  if(VIEW){
+    tEl.textContent = VIEW.date ? "a snapshot from "+prettyDate(VIEW.date) : "a shared binder";
+    tEl.style.color = "var(--dim)";
+  } else {
+    const firstTot=CARDS.reduce((s,c)=>{ const f=firstPrice(c.id); return s+(f!=null?f:c.price)*(c.qty||1); },0);
+    const diff=totalValue()-firstTot;
+    if(Math.abs(diff)<0.5){ tEl.textContent="holding steady"; tEl.style.color="var(--dim)"; }
+    else{
+      tEl.textContent=(diff>0?"\u25b2 +$":"\u25bc \u2212$")+fmtNum(Math.abs(diff))+" since "+prettyDate(dates()[0]);
+      tEl.style.color=diff>0?"var(--up)":"var(--down)";
+    }
   }
 }
 function reducedMotion(){ return window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches; }
@@ -891,6 +998,7 @@ function histRows(s){
   }).join("");
 }
 function openModal(c){
+  if(c._v) return openVisitModal(c);
   const m=meta[c.id]||{};
   const s=seriesOf(c.id);
   const box=$("#modalBox");
@@ -1215,11 +1323,14 @@ function scanFail(msg){
   wireScanCommon();
 }
 
-/* turn a chosen API card into a binder card and store it (image + today's price) */
-function confirmScanned(x){
+/* turn an API card into a binder card and store it (image + today's price).
+   Shared by the camera scanner and the video intake — it only touches data, never the screen,
+   so the video flow can add a whole stack of cards and redraw once at the end. */
+let cardSeq = 0;
+function addApiCard(x, qty){
   const total = x.set && x.set.printedTotal;
   const card = {
-    id:"u"+Date.now().toString(36),
+    id:"u"+Date.now().toString(36)+(cardSeq++).toString(36),
     name:x.name,
     num:x.number+(total?"/"+total:""),
     set:(x.set&&x.set.name)||"(unknown set)",
@@ -1230,6 +1341,7 @@ function confirmScanned(x){
   };
   if(total) card.total=total;
   if(x.set&&x.set.id) card.sets=[x.set.id];
+  if(qty>1) card.qty=qty;
   userCards.push(card);
   store.set("binder.usercards", userCards);
   rebuildCards();
@@ -1242,12 +1354,748 @@ function confirmScanned(x){
     store.set("binder.history", history);
   }
   if(x.set&&x.set.id&&x.set.name){ setIds[x.set.name]=x.set.id; store.set("binder.setids", setIds); }
+  return card;
+}
+function confirmScanned(x){
+  const card = addApiCard(x, 1);
   closeScan();
   sortMode="binder"; $("#sortSel").value="binder";
   pageIdx=Math.ceil(CARDS.length/9)-1;
   render();
   toast('Added “'+card.name+'” to your binder ✔');
 }
+
+/* ================= VIDEO INTAKE: THE SELF-BUILDING BINDER =================
+   Film yourself flipping through your real binder, and this fills your binder in for you.
+   Four steps, all kicked off by one video file:
+     1. FRAMES  — play the video in the background, grab pictures as it goes, and keep only
+                  the sharpest picture of each page (a flip = a big change between pictures).
+     2. AI      — send each page picture to Claude, which reads off the cards it can see and
+                  says how sure it is about each one.
+     3. MATCH   — look every guess up in the Pokémon TCG API to get the real card + picture + price.
+     4. REVIEW  — you get the final say: confirm, deny, or fix each card before anything is added.
+   The AI part needs an Anthropic API key (a grown-up's), kept only on this device. */
+
+const AI_MODEL = "claude-opus-5";
+const MAX_PAGE_FRAMES = 14;      // pages we're willing to send to the AI in one go
+const FRAME_STRIDE = 0.35;       // seconds between peeks at the video
+
+let aiKey = store.get("binder.aikey") || "";
+let vidRows = [];                // the review queue
+
+function closeVideo(){ $("#videoOverlay").classList.remove("on"); }
+function vidHeader(title){
+  return '<button class="mClose" id="vidClose" aria-label="Close">✕</button><h2>'+escapeHtml(title)+'</h2>';
+}
+function wireVidClose(){ const c=$("#vidClose"); if(c) c.onclick=closeVideo; }
+
+/* the little 1-2-3-4 tracker at the top of the working screen */
+function vidProgress(step, msg, pct){
+  const steps=["Watching your video","Reading the cards","Looking up prices","Your turn to check"];
+  $("#videoBox").innerHTML = vidHeader("Adding cards from your video")+
+    steps.map(function(s,i){
+      const cls = i<step ? "done" : (i===step ? "on" : "");
+      return '<div class="vidStep '+cls+'"><span class="num">'+(i<step?"✓":(i+1))+'</span><span>'+s+'</span></div>';
+    }).join("")+
+    '<div class="scanStatus"><div class="spinner"></div><span id="vidMsg">'+escapeHtml(msg)+'</span></div>'+
+    '<div class="bar" style="margin-top:14px"><i id="vidBar" style="width:'+(pct||3)+'%"></i></div>'+
+    '<div class="vidFilm" id="vidFilm"></div>';
+  wireVidClose();
+}
+function vidMsg(msg, pct){
+  const m=$("#vidMsg"); if(m) m.textContent=msg;
+  const b=$("#vidBar"); if(b && pct!=null) b.style.width=pct+"%";
+}
+function vidFail(msg){
+  $("#videoBox").innerHTML = vidHeader("Adding cards from your video")+
+    '<p class="formErr on" style="min-height:auto">'+escapeHtml(msg)+'</p>'+
+    '<div class="formBtns">'+
+      '<button type="button" class="btnGhost" id="vidRetry">Try another video</button>'+
+      '<button type="button" class="btnGo" id="vidManual">Type a card in</button></div>';
+  wireVidClose();
+  $("#vidRetry").onclick=()=>{ closeVideo(); triggerVideo(); };
+  $("#vidManual").onclick=()=>{ closeVideo(); openAddForm(); };
+}
+
+/* ---- the front door ---- */
+function openVideo(){
+  if(!aiKey) return openKeySetup();
+  $("#videoBox").innerHTML = vidHeader("Fill your binder from a video")+
+    '<p class="formHint">Record yourself slowly flipping through your binder — hold each page still for a second or two in good light. Then pick that video here and I’ll read the cards off it.</p>'+
+    '<button type="button" class="btnScan" id="vidPick">🎬 Choose a video</button>'+
+    '<div class="keyNote">Tips for a great scan: bright light, no glare on the sleeves, and the whole page in the picture. You’ll get to check every card before anything is added.</div>'+
+    '<div class="formBtns" style="margin-top:14px"><button type="button" class="btnGhost" id="vidKey">🔑 Change AI key</button></div>';
+  wireVidClose();
+  $("#vidPick").onclick=triggerVideo;
+  $("#vidKey").onclick=openKeySetup;
+  $("#videoOverlay").classList.add("on");
+}
+function triggerVideo(){ const i=$("#videoInput"); i.value=""; i.click(); }
+
+function openKeySetup(){
+  $("#videoBox").innerHTML = vidHeader("One-time setup")+
+    '<p class="formHint">Reading cards out of a video uses Claude AI, which needs a key from a grown-up’s Anthropic account. It’s saved only on this device and is never put into share links.</p>'+
+    '<label class="fld"><span>Anthropic API key</span>'+
+      '<input id="aiKeyIn" type="password" placeholder="sk-ant-…" autocomplete="off" value="'+escapeHtml(aiKey)+'">'+
+      '<small>Get one at console.anthropic.com → API Keys. Each page costs about a penny to read.</small>'+
+    '</label>'+
+    '<div class="formErr" id="keyErr"></div>'+
+    '<div class="formBtns">'+
+      (aiKey?'<button type="button" class="btnGhost" id="keyClear">Forget key</button>':'<button type="button" class="btnGhost" id="keyCancel">Cancel</button>')+
+      '<button type="button" class="btnGo" id="keySave">Save & continue</button></div>';
+  wireVidClose();
+  $("#videoOverlay").classList.add("on");
+  const c=$("#keyCancel"); if(c) c.onclick=closeVideo;
+  const cl=$("#keyClear");
+  if(cl) cl.onclick=()=>{ aiKey=""; store.set("binder.aikey",""); toast("Key forgotten."); closeVideo(); };
+  $("#keySave").onclick=()=>{
+    const v=$("#aiKeyIn").value.trim();
+    if(!v){ $("#keyErr").textContent="Please paste the key, or tap Cancel."; $("#keyErr").classList.add("on"); return; }
+    aiKey=v; store.set("binder.aikey", v);
+    openVideo();
+  };
+  setTimeout(()=>{ const i=$("#aiKeyIn"); if(i) i.focus(); }, 60);
+}
+
+/* ---- STEP 1: pull one good picture per binder page out of the video ---- */
+/* Tiny 16x16 grayscale "fingerprints" tell us when the page changed (a flip),
+   and a rough focus score tells us which picture of that page is the sharpest. */
+function frameStats(ctx, w, h){
+  const d = ctx.getImageData(0,0,w,h).data;
+  const N = 16, cell = [], gray = new Float32Array(w*h);
+  for(let i=0,p=0;i<d.length;i+=4,p++) gray[p] = (d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114);
+  for(let gy=0;gy<N;gy++) for(let gx=0;gx<N;gx++){
+    let sum=0,n=0;
+    const x0=Math.floor(gx*w/N), x1=Math.floor((gx+1)*w/N), y0=Math.floor(gy*h/N), y1=Math.floor((gy+1)*h/N);
+    for(let y=y0;y<y1;y++) for(let x=x0;x<x1;x++){ sum+=gray[y*w+x]; n++; }
+    cell.push(n?sum/n:0);
+  }
+  let focus=0, cnt=0;                          // neighbour differences ≈ how crisp the edges are
+  for(let y=1;y<h-1;y+=2) for(let x=1;x<w-1;x+=2){
+    const g=gray[y*w+x];
+    focus += Math.abs(4*g - gray[y*w+x-1] - gray[y*w+x+1] - gray[(y-1)*w+x] - gray[(y+1)*w+x]);
+    cnt++;
+  }
+  return { sig:cell, focus: cnt?focus/cnt:0 };
+}
+function sigDiff(a,b){ let s=0; for(let i=0;i<a.length;i++) s+=Math.abs(a[i]-b[i]); return s/a.length; }
+
+async function extractPageFrames(file, onTick){
+  const video=document.createElement("video");
+  video.muted=true; video.playsInline=true; video.preload="auto";
+  video.src=URL.createObjectURL(file);
+  await new Promise((res,rej)=>{
+    video.onloadedmetadata=res;
+    video.onerror=()=>rej(new Error("bad video"));
+    setTimeout(()=>rej(new Error("timeout")), 20000);
+  });
+  const dur=video.duration;
+  if(!isFinite(dur) || dur<=0) throw new Error("bad duration");
+
+  const small=document.createElement("canvas"), sctx=small.getContext("2d",{willReadFrequently:true});
+  const sw=96, sh=Math.max(1,Math.round(96*(video.videoHeight||3)/(video.videoWidth||4)));
+  small.width=sw; small.height=sh;
+  const big=document.createElement("canvas"), bctx=big.getContext("2d");
+  const scale=Math.min(1, 1100/Math.max(video.videoWidth||1100, video.videoHeight||1100));
+  big.width=Math.round((video.videoWidth||1100)*scale);
+  big.height=Math.round((video.videoHeight||1100)*scale);
+
+  const step=Math.max(FRAME_STRIDE, dur/220);   // never take more than ~220 peeks
+  const shots=[]; let cur=null;
+  for(let t=0; t<dur; t+=step){
+    await new Promise(res=>{
+      let done=false;
+      const fin=()=>{ if(!done){ done=true; res(); } };
+      video.onseeked=fin; setTimeout(fin, 900);
+      video.currentTime=Math.min(t, Math.max(0,dur-0.05));
+    });
+    sctx.drawImage(video,0,0,sw,sh);
+    const st=frameStats(sctx,sw,sh);
+    if(!cur || sigDiff(cur.sig, st.sig) > 9){     // the page changed → start a new page
+      cur={ sig:st.sig, bestSig:st.sig, best:st.focus, t:t };
+      shots.push(cur);
+    } else {
+      cur.sig=st.sig;
+      if(st.focus > cur.best){ cur.best=st.focus; cur.t=t; cur.bestSig=st.sig; }  // a crisper look at the same page
+    }
+    if(onTick) onTick(Math.min(0.99, t/dur));
+  }
+
+  /* Keep the steadiest pages. When you pause on a page the picture is sharp; while your
+     hand is mid-flip it smears. Measured on a test flip-through, held pages scored ~26-31
+     and every mid-flip frame scored under 12 — so anything less than half as sharp as the
+     best page is a flip, not a page. We also skip a page that looks like one already kept,
+     since a wobbly hand can split one page into several and re-reading it just costs money. */
+  shots.sort((a,b)=>b.best-a.best);
+  const sharpEnough = shots.length ? shots[0].best*0.5 : 0;
+  const keep=[];
+  for(const s of shots){
+    if(keep.length>=MAX_PAGE_FRAMES) break;
+    if(s.best < sharpEnough) break;
+    if(keep.some(k=>sigDiff(k.bestSig, s.bestSig) < 7)) continue;
+    keep.push(s);
+  }
+  keep.sort((a,b)=>a.t-b.t);
+  const frames=[];
+  for(const s of keep){
+    await new Promise(res=>{
+      let done=false; const fin=()=>{ if(!done){ done=true; res(); } };
+      video.onseeked=fin; setTimeout(fin, 900);
+      video.currentTime=s.t;
+    });
+    bctx.drawImage(video,0,0,big.width,big.height);
+    frames.push({ t:s.t, data:big.toDataURL("image/jpeg",0.72) });
+  }
+  URL.revokeObjectURL(video.src);
+  return { frames: frames, dropped: Math.max(0, shots.length-keep.length) };
+  /* dropped = near-duplicate or blurrier looks at pages we already have */
+}
+
+/* ---- STEP 2: ask Claude what cards are on each page ---- */
+const AI_PROMPT =
+  "This is one page of a kid's Pokémon card binder, filmed on a phone. List EVERY Pokémon card you can see on the page.\n"+
+  "For each card give:\n"+
+  '  "name": the card name exactly as printed (include ex / V / VSTAR / VMAX, and owner prefixes like "N\'s" or "Team Rocket\'s")\n'+
+  '  "number": the small collector number, usually bottom-left or bottom-right, like "160/132" or "SVP 165" — use "" if you truly cannot read it\n'+
+  '  "set": the set name if you can tell, else ""\n'+
+  '  "confidence": 0 to 1, how sure you are of name AND number together\n'+
+  "Rules: include cards that are blurry, glare-covered, or partly hidden — just give your best guess with a low confidence. "+
+  "Do not invent cards you cannot see. Do not list the same card twice unless there really are two copies on the page.\n"+
+  'Reply with ONLY JSON in this exact shape: {"cards":[{"name":"","number":"","set":"","confidence":0}]}';
+
+async function aiReadFrame(dataUrl){
+  const b64 = dataUrl.slice(dataUrl.indexOf(",")+1);
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "content-type":"application/json",
+      "x-api-key":aiKey,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      max_tokens: 4000,
+      output_config:{ effort:"medium" },
+      messages:[{ role:"user", content:[
+        { type:"image", source:{ type:"base64", media_type:"image/jpeg", data:b64 } },
+        { type:"text", text:AI_PROMPT }
+      ]}]
+    })
+  });
+  if(!r.ok){
+    let detail=""; try{ const j=await r.json(); detail=(j.error&&j.error.message)||""; }catch(e){}
+    const err=new Error(detail||("HTTP "+r.status)); err.status=r.status; throw err;
+  }
+  const j = await r.json();
+  if(j.stop_reason === "refusal") return [];
+  const txt = (j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+  const s=txt.indexOf("{"), e=txt.lastIndexOf("}");
+  if(s<0||e<s) return [];
+  let parsed; try{ parsed = JSON.parse(txt.slice(s,e+1)); }catch(err){ return []; }
+  return Array.isArray(parsed.cards) ? parsed.cards : [];
+}
+
+/* ---- STEP 3: turn each guess into a real card from the price API ---- */
+function guessKey(g){ return (String(g.name||"").toLowerCase().replace(/[^a-z]/g,"")+"|"+String(g.number||"").replace(/\s/g,"")); }
+
+async function matchGuess(g){
+  const name=String(g.name||"").trim(), numRaw=String(g.number||"").trim();
+  const out=[], seen={};
+  const push=list=>{ (list||[]).forEach(x=>{ if(!seen[x.id]){ seen[x.id]=1; out.push(x); } }); };
+  const kw=deriveKw(name);
+  if(numRaw){
+    const {nums,total}=parseNum(numRaw);
+    for(const n of nums.slice(0,2)){
+      const data=await apiGet("number:"+n);
+      if(data){
+        let list=data;
+        if(total) list=list.filter(x=>x.set&&x.set.printedTotal===total);
+        if(kw){ const byName=list.filter(x=>x.name.toLowerCase().includes(kw)); if(byName.length) list=byName; }
+        push(list);
+      }
+      if(out.length) break;
+      await sleep(120);
+    }
+  }
+  if(!out.length && name){
+    const data=await apiGet('name:"'+name.replace(/["\\]/g,"")+'"');
+    push(data);
+    if(!out.length && kw){ await sleep(120); push(await apiGet('name:"'+kw+'"')); }
+  }
+  /* best first: name match, then having a price */
+  const score=x=>{
+    let s=0; const nm=(x.name||"").toLowerCase();
+    if(kw && nm.includes(kw)) s+=3;
+    if(nm===name.toLowerCase()) s+=2;
+    if(pickPrice(x.tcgplayer)!=null) s+=0.5;
+    return s;
+  };
+  out.sort((a,b)=>score(b)-score(a));
+  return out.slice(0,4);
+}
+/* is this card already sitting in the binder? */
+function alreadyHave(x){
+  const total=x.set&&x.set.printedTotal;
+  const num=x.number+(total?"/"+total:"");
+  const setName=(x.set&&x.set.name)||"";
+  return CARDS.some(c=> !c.bulk && c.num===num && (c.set===setName || (c.nums||[]).includes(x.number)));
+}
+
+/* ---- the whole run ---- */
+async function runVideo(file){
+  if(!file) return;
+  $("#videoOverlay").classList.add("on");
+  vidProgress(0, "Getting your video ready…", 4);
+
+  let got;
+  try{ got = await extractPageFrames(file, p=>vidMsg("Watching your video… "+Math.round(p*100)+"%", 4+p*26)); }
+  catch(e){ return vidFail("I couldn’t open that video. Try a normal phone recording (mp4 or mov), or type the card in."); }
+  const frames=got.frames;
+  if(!frames.length) return vidFail("I couldn’t find any steady pages in that video. Try again, holding each page still for a second or two.");
+
+  const film=$("#vidFilm");
+  if(film) film.innerHTML = frames.map(f=>'<img src="'+f.data+'" alt="">').join("");
+
+  /* STEP 2 — read each page */
+  vidProgress(1, "Reading page 1 of "+frames.length+"…", 32);
+  $("#vidFilm").innerHTML = frames.map(f=>'<img src="'+f.data+'" alt="">').join("");
+  const guesses=[]; const seenGuess={};
+  for(let i=0;i<frames.length;i++){
+    vidMsg("Reading page "+(i+1)+" of "+frames.length+"…", 32+(i/frames.length)*34);
+    let cards=[];
+    try{ cards = await aiReadFrame(frames[i].data); }
+    catch(e){
+      if(e.status===401 || e.status===403){ aiKey=""; store.set("binder.aikey",""); return vidFail("That AI key was rejected. Tap 🎬 Video again to enter a new one."); }
+      if(e.status===429){ await sleep(4000); try{ cards = await aiReadFrame(frames[i].data); }catch(e2){ cards=[]; } }
+      else if(!guesses.length && i===frames.length-1){ return vidFail("I couldn’t reach the AI: "+(e.message||"unknown error")+". Check the internet and try again."); }
+    }
+    cards.forEach(g=>{
+      const k=guessKey(g);
+      if(!k.replace(/\|/g,"")) return;
+      if(seenGuess[k]!=null){                       // same card seen on another frame
+        const prev=guesses[seenGuess[k]];
+        if((+g.confidence||0) > (+prev.confidence||0)) guesses[seenGuess[k]]=g;
+        return;
+      }
+      seenGuess[k]=guesses.length; guesses.push(g);
+    });
+  }
+  if(!guesses.length) return vidFail("The AI didn’t spot any cards in that video. Try filming closer, with the whole page in frame and good light.");
+
+  /* STEP 3 — look each one up */
+  vidProgress(2, "Looking up "+guesses.length+" cards…", 68);
+  vidRows=[];
+  for(let i=0;i<guesses.length;i++){
+    vidMsg("Looking up "+(i+1)+" of "+guesses.length+"…", 68+(i/guesses.length)*28);
+    const g=guesses[i];
+    let cands=[];
+    try{ cands = await matchGuess(g); }catch(e){}
+    const conf=+g.confidence||0;
+    vidRows.push({
+      guess:g, cands:cands, pick:cands.length?0:-1,
+      on: cands.length>0 && conf>=0.45 && !alreadyHave(cands[0]),
+      sure: conf>=0.75 && cands.length>0,
+      dupe: cands.length>0 && alreadyHave(cands[0])
+    });
+    await sleep(90);
+  }
+  showReview();
+}
+
+/* ---- STEP 4: confirm / deny / update ---- */
+function showReview(){
+  const found=vidRows.filter(r=>r.cands.length).length;
+  const misses=vidRows.length-found;
+  let html = vidHeader("Is this what you’ve got?")+
+    '<p class="formHint">I found <b>'+found+'</b> card'+(found===1?"":"s")+
+    (misses?' (and <b>'+misses+'</b> I couldn’t look up)':'')+
+    '. Tap a card to leave it out, ✎ to fix one, then add them all at the bottom.</p>'+
+    '<div class="revList">';
+  vidRows.forEach(function(r,i){
+    const c=r.cands[r.pick] || null;
+    const img=c && c.images && (c.images.small||c.images.large) || "";
+    const price=c?pickPrice(c.tcgplayer):null;
+    const total=c && c.set && c.set.printedTotal;
+    const title=c?c.name:(r.guess.name||"Couldn’t read this one");
+    const sub=c ? ((c.set&&c.set.name)||"")+" • "+c.number+(total?"/"+total:"")+(price!=null?" • "+money(price):"")
+               : "AI guessed: "+(r.guess.name||"?")+" "+(r.guess.number||"");
+    html+='<div class="revRow'+(r.on?"":" off")+(r.dupe?" dupe":"")+'" data-i="'+i+'">'+
+      '<span class="revThumb">'+(img?'<img src="'+img+'" alt="" loading="lazy">':'')+'</span>'+
+      '<span class="revMeta"><b>'+escapeHtml(title)+'</b><small>'+escapeHtml(sub)+'</small>'+
+        '<span class="revTags">'+
+          (r.sure?'<span class="revTag sure">sure</span>':'')+
+          (!r.sure&&c?'<span class="revTag maybe">not sure — please check</span>':'')+
+          (r.dupe?'<span class="revTag dupe">already in your binder</span>':'')+
+          (!c?'<span class="revTag">no match — tap ✎</span>':'')+
+          (r.cands.length>1?'<span class="revTag">'+r.cands.length+' options</span>':'')+
+        '</span>'+
+      '</span>'+
+      '<span class="revBtns">'+
+        (c?'<button type="button" class="revPick" data-tog="'+i+'">'+(r.on?"✓ Add":"＋")+'</button>':'')+
+        '<button type="button" class="revFix" data-fix="'+i+'">✎</button>'+
+      '</span>'+
+    '</div>';
+  });
+  const n=vidRows.filter(r=>r.on).length;
+  html+='</div><div class="revSum"><span class="grow" id="revCount">'+n+' card'+(n===1?"":"s")+' will be added</span></div>'+
+    '<div class="formBtns">'+
+      '<button type="button" class="btnGhost" id="revCancel">Not now</button>'+
+      '<button type="button" class="btnGo" id="revAdd">Add to my binder</button></div>';
+  $("#videoBox").innerHTML=html;
+  wireVidClose();
+  const box=$("#videoBox");
+  box.querySelectorAll("[data-tog]").forEach(function(b){
+    b.onclick=function(){ const i=+b.dataset.tog; vidRows[i].on=!vidRows[i].on; showReview(); };
+  });
+  box.querySelectorAll("[data-fix]").forEach(function(b){
+    b.onclick=function(){ fixRow(+b.dataset.fix); };
+  });
+  $("#revCancel").onclick=closeVideo;
+  $("#revAdd").onclick=commitReview;
+}
+
+/* the "update" half of confirm/deny/update: pick a different match, or search again by hand */
+function fixRow(i){
+  const r=vidRows[i];
+  let html=vidHeader("Fix this card")+
+    '<p class="formHint">AI read it as <b>'+escapeHtml(r.guess.name||"?")+' '+escapeHtml(r.guess.number||"")+'</b>.</p>';
+  if(r.cands.length>1 || (r.cands.length===1 && r.pick!==0)){
+    html+='<div class="orDiv">is it one of these?</div><div class="scanList">';
+    r.cands.forEach(function(x,k){
+      const price=pickPrice(x.tcgplayer);
+      const img=(x.images&&(x.images.small||x.images.large))||"";
+      const total=x.set&&x.set.printedTotal;
+      html+='<button type="button" class="scanCand" data-pick="'+k+'">'+
+        '<span class="scanCard">'+(img?'<img src="'+img+'" alt="" loading="lazy">':'')+'</span>'+
+        '<span class="scanMeta"><b>'+escapeHtml(x.name)+'</b>'+
+          '<small>'+escapeHtml((x.set&&x.set.name)||"")+' • '+escapeHtml(x.number+(total?"/"+total:""))+'</small>'+
+          '<span class="scanPrice">'+(price!=null?money(price):"price n/a")+'</span></span>'+
+        '<span class="scanPick">'+(k===r.pick?"✓ picked":"This one")+'</span></button>';
+    });
+    html+='</div>';
+  }
+  html+='<div class="orDiv">or look it up yourself</div>'+
+    '<div class="fldRow" style="margin-top:10px">'+
+      '<label class="fld"><span>Card name</span><input id="fixName" type="text" value="'+escapeHtml(r.guess.name||"")+'"></label>'+
+      '<label class="fld narrow"><span>Number</span><input id="fixNum" type="text" value="'+escapeHtml(r.guess.number||"")+'"></label>'+
+    '</div>'+
+    '<div class="formBtns">'+
+      '<button type="button" class="btnGhost" id="fixBack">← Back</button>'+
+      '<button type="button" class="btnGo" id="fixGo">🔍 Search again</button></div>'+
+    '<button type="button" class="btnRemove" id="fixDrop">Leave this one out</button>';
+  $("#videoBox").innerHTML=html;
+  wireVidClose();
+  const box=$("#videoBox");
+  box.querySelectorAll("[data-pick]").forEach(function(b){
+    b.onclick=function(){ r.pick=+b.dataset.pick; r.on=true; r.dupe=alreadyHave(r.cands[r.pick]); showReview(); };
+  });
+  $("#fixBack").onclick=showReview;
+  $("#fixDrop").onclick=function(){ r.on=false; showReview(); };
+  $("#fixGo").onclick=async function(){
+    const btn=$("#fixGo"); btn.disabled=true; btn.textContent="Searching…";
+    r.guess={ name:$("#fixName").value.trim(), number:$("#fixNum").value.trim(), confidence:1 };
+    try{ r.cands=await matchGuess(r.guess); }catch(e){ r.cands=[]; }
+    r.pick=r.cands.length?0:-1;
+    r.on=r.cands.length>0;
+    r.sure=r.cands.length>0;
+    r.dupe=r.cands.length>0 && alreadyHave(r.cands[0]);
+    if(!r.cands.length){ btn.disabled=false; btn.textContent="🔍 Search again"; return toast("Still no match — check the number, like 160/132."); }
+    showReview();
+  };
+}
+
+function commitReview(){
+  const picked=vidRows.filter(r=>r.on && r.cands[r.pick]);
+  if(!picked.length){ closeVideo(); return toast("Nothing added — tap ＋ on the cards you want next time."); }
+  picked.forEach(r=>addApiCard(r.cands[r.pick], 1));
+  closeVideo();
+  sortMode="binder"; $("#sortSel").value="binder";
+  pageIdx=Math.ceil(CARDS.length/9)-1;
+  render();
+  toast("Added "+picked.length+" card"+(picked.length===1?"":"s")+" from your video ✔");
+}
+
+/* ================= SHARE YOUR BINDER + FRIENDS ================= */
+/* The big idea: your whole binder travels as a "magic link". Every card (name, set,
+   picture link, price) is squished with gzip into the part of the URL after the #,
+   so there's no account and no server — the link IS the binder. Send it to a friend
+   (or open it on your own phone!) and it shows the collection in read-only "visiting"
+   mode. Binders friends send you can be kept on a shelf under 👥 Friends.
+   New saved data: binder.profile = the name you share as, binder.friends = the shelf. */
+let VIEW = null;            // null = your own binder; otherwise the shared binder being visited
+let profile = store.get("binder.profile") || {};
+let friends = store.get("binder.friends") || [];
+let refreshedOnce = false;  // did we fetch live prices yet this visit?
+
+function poss(n){ return n + (/s$/i.test(n) ? "’" : "’s"); }
+function setH1(owner){
+  $("#pageH1").innerHTML = (owner ? escapeHtml(poss(owner)) : "My") + " <span>Pokémon</span> Binder";
+  document.title = (owner ? poss(owner) : "My") + " Pokémon Card Binder";
+}
+
+/* --- tiny translators: bytes <-> text that's safe to live inside a URL --- */
+const b64u = {
+  enc(buf){
+    const u = new Uint8Array(buf); let s = "";
+    for(let i=0;i<u.length;i+=0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i+0x8000));
+    return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+  },
+  dec(str){
+    let s = str.replace(/-/g,"+").replace(/_/g,"/");
+    while(s.length % 4) s += "=";
+    const bin = atob(s), u = new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) u[i] = bin.charCodeAt(i);
+    return u.buffer;
+  }
+};
+async function gzipStr(str){
+  const stream = new Blob([new TextEncoder().encode(str)]).stream().pipeThrough(new CompressionStream("gzip"));
+  return await new Response(stream).arrayBuffer();
+}
+async function gunzipBuf(buf){
+  const stream = new Blob([buf]).stream().pipeThrough(new DecompressionStream("gzip"));
+  return await new Response(stream).text();
+}
+
+/* pack the binder into a small plain object — one-letter keys keep the link short */
+function packBinder(){
+  return { v:1, o:(profile.name||""), t:todayKey(), c: CARDS.map(function(c){
+    const m = meta[c.id] || {};
+    const o = { n: displayName(c), m: c.num, s: (m.setName || c.set), p: Math.round(latestPrice(c.id)*100)/100 };
+    if(c.qty > 1)  o.q = c.qty;
+    if(c.graded)   o.g = c.graded;
+    if(c.bulk)     o.b = c.bulk;
+    if(m.rarity)   o.r = m.rarity;
+    if(m.img)      o.i = m.img;
+    return o;
+  }) };
+}
+async function buildShareLink(){
+  const json = JSON.stringify(packBinder());
+  let payload;
+  try{ payload = "1." + b64u.enc(await gzipStr(json)); }
+  catch(e){ payload = "0." + b64u.enc(new TextEncoder().encode(json).buffer); } // very old browser: skip gzip
+  return location.href.split("#")[0] + "#b=" + payload;
+}
+
+/* read a link's payload back into safe, ready-to-show cards.
+   Links come from outside, so nothing is trusted blindly: everything is
+   length-capped, numbers are checked, and pictures must be https. */
+async function decodeShare(payload){
+  if(!payload || payload.length > 400000) throw new Error("bad payload");
+  const dot = payload.indexOf(".");
+  const buf = b64u.dec(payload.slice(dot+1));
+  const json = payload.slice(0,dot) === "1" ? await gunzipBuf(buf) : new TextDecoder().decode(buf);
+  const d = JSON.parse(json);
+  if(!d || d.v !== 1 || !Array.isArray(d.c)) throw new Error("bad shape");
+  const raw = d.c.slice(0, 900);
+  return {
+    name: String(d.o || "A mystery trainer").slice(0, 40),
+    date: /^\d{4}-\d{2}-\d{2}$/.test(String(d.t||"")) ? d.t : "",
+    raw: raw,
+    cards: hydrateCards(raw)
+  };
+}
+function hydrateCards(raw){
+  return raw.map(function(x, i){
+    const qty = Math.min(999, parseInt(x.q,10) || 1);
+    return {
+      id: "v"+i, _v: true,
+      name: String(x.n || "Card").slice(0, 80),
+      num: String(x.m || "").slice(0, 24),
+      set: String(x.s || "").slice(0, 60),
+      qty: qty > 1 ? qty : 1,
+      graded: x.g ? String(x.g).slice(0, 20) : "",
+      bulk: Math.min(99999, parseInt(x.b,10) || 0),
+      price: (isFinite(+x.p) && +x.p >= 0) ? +x.p : 0,
+      _img: (typeof x.i === "string" && /^https:\/\//.test(x.i)) ? x.i : "",
+      _rarity: x.r ? String(x.r).slice(0, 40) : ""
+    };
+  });
+}
+
+/* --- visiting mode: flip through someone else's binder --- */
+function enterVisit(d, src){
+  VIEW = { name:d.name, date:d.date, raw:d.raw, cards:d.cards, src:src };
+  document.body.classList.add("visiting");
+  setH1(VIEW.name);
+  const vb = $("#visitBar");
+  vb.hidden = false;
+  vb.innerHTML = '<span class="vNote">👀 You’re peeking at <b>' + escapeHtml(poss(VIEW.name)) + '</b> binder</span>' +
+    (src === "link" ? '<button type="button" class="btnMini go" id="vSave">💾 Save to my friends</button>' : "") +
+    '<button type="button" class="btnMini" id="vHome">🏠 Back to my binder</button>';
+  const sv = $("#vSave"); if(sv) sv.onclick = saveVisitToFriends;
+  $("#vHome").onclick = exitVisit;
+  pageIdx = 0; sortMode = "binder"; $("#sortSel").value = "binder";
+  render();
+}
+function exitVisit(){
+  VIEW = null;
+  document.body.classList.remove("visiting");
+  $("#visitBar").hidden = true;
+  setH1(null);
+  try{ history.replaceState(null, "", location.pathname + location.search); }catch(e){ location.hash = ""; }
+  pageIdx = 0;
+  render();
+  if(!refreshedOnce) refreshAll();   // we arrived through a friend's link — now fetch YOUR live prices
+}
+function saveVisitToFriends(){
+  const name = VIEW.name;
+  const existing = friends.findIndex(function(f){ return f.name.toLowerCase() === name.toLowerCase(); });
+  if(existing >= 0 && !confirm("You already saved a binder from " + name + " — replace it with this newer one?")) return;
+  const entry = { id:"f"+Date.now().toString(36), name:name, date:VIEW.date, saved:todayKey(), cards:VIEW.raw };
+  if(existing >= 0) friends[existing] = entry; else friends.push(entry);
+  store.set("binder.friends", friends);
+  const b = $("#vSave"); if(b){ b.textContent = "✔ Saved"; b.disabled = true; }
+  toast("Saved! Peek at " + poss(name) + " binder anytime under 👥 Friends.");
+}
+/* simpler card pop-up for visited cards: no charts (their history stays home with them) */
+function openVisitModal(c){
+  const box = $("#modalBox");
+  box.innerHTML =
+    '<button class="mClose" aria-label="Close">✕</button>' +
+    '<div class="bigcard"><div class="cardface">' + faceHTML(c) + '</div></div>' +
+    '<div class="info">' +
+      '<h2>' + escapeHtml(c.name) + '</h2>' +
+      '<div class="set">' + escapeHtml(c.set) + ' • ' + escapeHtml(c.num) + '</div>' +
+      '<div class="tags">' +
+        (c.graded ? '<span class="tag gold">' + escapeHtml(c.graded) + ' graded</span>' : "") +
+        (c._rarity ? '<span class="tag">' + escapeHtml(c._rarity) + '</span>' : "") +
+        (c.qty > 1 ? '<span class="tag">They have ×' + c.qty + '</span>' : "") +
+        (c.bulk ? '<span class="tag">' + c.bulk + ' cards</span>' : "") +
+      '</div>' +
+      '<div class="bigprice"><span class="v">' + money(cardValue(c)) + '</span></div>' +
+      (c.qty > 1 ? '<div class="note">' + money(c.price) + ' each × ' + c.qty + ' copies</div>' : "") +
+      '<div class="note">From ' + escapeHtml(poss(VIEW.name)) + ' binder — the price is from when it was shared' + (VIEW.date ? ' (' + prettyDate(VIEW.date) + ')' : '') + '.</div>' +
+    '</div>';
+  box.querySelector(".mClose").onclick = closeModal;
+  const face = box.querySelector(".bigcard .cardface");
+  if(face) attachTilt(face);
+  $("#overlay").classList.add("on");
+}
+
+/* --- the Share pop-up --- */
+function openShare(){
+  $("#shareBox").innerHTML =
+    '<button class="mClose" id="shClose" aria-label="Close">✕</button>' +
+    '<h2>Share your binder</h2>' +
+    '<p class="formHint">Makes a magic link with your whole binder inside — cards, pictures and prices. Text it to a friend, or open it on your phone so your cards are always with you!</p>' +
+    '<label class="fld"><span>Your name</span>' +
+      '<input id="shName" type="text" maxlength="30" placeholder="e.g. Emerson" value="' + escapeHtml(profile.name || "") + '">' +
+    '</label>' +
+    '<div class="formBtns"><button type="button" class="btnGo" id="shMake">✨ Make my link</button></div>' +
+    '<div class="shareOut" id="shareOut">' +
+      '<div class="linkRow"><input id="shLink" type="text" readonly>' +
+        '<button type="button" class="btnMini" id="shCopy">📋 Copy</button>' +
+        (navigator.share ? '<button type="button" class="btnMini go" id="shSys">📲 Share…</button>' : "") +
+      '</div>' +
+      '<small class="formHint" style="margin:0">Anyone with the link can see this binder. Prices ride along from today — share a fresh link after big pulls!</small>' +
+    '</div>';
+  $("#shClose").onclick = closeShare;
+  $("#shMake").onclick = makeShareLink;
+  $("#shareOverlay").classList.add("on");
+  setTimeout(function(){ const i = $("#shName"); if(i && !i.value) i.focus(); }, 60);
+}
+function closeShare(){ $("#shareOverlay").classList.remove("on"); }
+async function makeShareLink(){
+  const btn = $("#shMake");
+  profile.name = $("#shName").value.trim();
+  store.set("binder.profile", profile);
+  btn.disabled = true; btn.textContent = "Wrapping it up…";
+  let link;
+  try{ link = await buildShareLink(); }
+  catch(e){ btn.disabled = false; btn.textContent = "✨ Make my link"; return toast("Couldn’t build the link on this browser — try a newer one."); }
+  btn.disabled = false; btn.textContent = "✨ Make my link";
+  $("#shLink").value = link;
+  $("#shareOut").classList.add("on");
+  $("#shCopy").onclick = function(){
+    const inp = $("#shLink"); inp.select(); inp.setSelectionRange(0, link.length);
+    let ok = false;
+    try{ ok = document.execCommand("copy"); }catch(e){}
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(link).catch(function(){}); ok = true; }
+    toast(ok ? "Link copied! Now send it to a friend 📲" : "Select the link and copy it 🙂");
+  };
+  const sys = $("#shSys");
+  if(sys) sys.onclick = function(){
+    navigator.share({ title:(profile.name ? poss(profile.name) : "My") + " Pokémon binder", url: link }).catch(function(){});
+  };
+}
+
+/* --- the Friends shelf --- */
+function openFriends(){
+  const box = $("#friendsBox");
+  let rows;
+  if(friends.length){
+    rows = '<div class="friendList">' + friends.map(function(f, i){
+      const count = f.cards.reduce(function(s,x){ return s + (parseInt(x.b,10) || parseInt(x.q,10) || 1); }, 0);
+      const val = f.cards.reduce(function(s,x){ return s + ((+x.p||0) * (parseInt(x.q,10)||1)); }, 0);
+      return '<div class="friendRow">' +
+        '<div class="fMeta"><b>' + escapeHtml(f.name) + '</b>' +
+        '<small>' + count + ' cards • ' + money(val) + ' • saved ' + prettyDate(f.saved) + '</small></div>' +
+        '<button type="button" class="btnMini go" data-open="' + i + '">Open</button>' +
+        '<button type="button" class="fDel" data-del="' + i + '" aria-label="Remove this binder">🗑</button>' +
+      '</div>';
+    }).join("") + '</div>';
+  } else {
+    rows = '<p class="formHint" style="margin-top:14px">No friend binders yet! When you open a share link from a friend, tap <b>💾 Save to my friends</b> and it’ll live here.</p>';
+  }
+  box.innerHTML =
+    '<button class="mClose" id="frClose" aria-label="Close">✕</button>' +
+    '<h2>Friend binders</h2>' + rows +
+    '<div class="orDiv">got a share link?</div>' +
+    '<div class="linkRow" style="margin-top:10px"><input id="pasteLink" type="text" placeholder="paste it here">' +
+    '<button type="button" class="btnMini go" id="pasteGo">Open</button></div>';
+  $("#frClose").onclick = closeFriends;
+  box.querySelectorAll("[data-open]").forEach(function(b){
+    b.onclick = function(){
+      const f = friends[+b.dataset.open];
+      closeFriends();
+      enterVisit({ name:f.name, date:f.date, raw:f.cards, cards:hydrateCards(f.cards) }, "friend");
+    };
+  });
+  box.querySelectorAll("[data-del]").forEach(function(b){
+    b.onclick = function(){
+      const f = friends[+b.dataset.del];
+      if(!confirm("Remove " + poss(f.name) + " binder from your shelf?")) return;
+      friends.splice(+b.dataset.del, 1);
+      store.set("binder.friends", friends);
+      openFriends();   // redraw the list
+    };
+  });
+  $("#pasteGo").onclick = async function(){
+    const s = $("#pasteLink").value.trim();
+    const ix = s.indexOf("#b=");
+    const payload = ix >= 0 ? s.slice(ix+3) : (/^[01]\./.test(s) ? s : "");
+    if(!payload) return toast("Hmm, that doesn’t look like a binder share link.");
+    try{
+      const d = await decodeShare(payload);
+      closeFriends();
+      enterVisit(d, "link");
+    }catch(e){ toast("That link didn’t open — ask your friend to send a fresh one!"); }
+  };
+  $("#friendsOverlay").classList.add("on");
+}
+function closeFriends(){ $("#friendsOverlay").classList.remove("on"); }
+
+/* arriving through a share link? (also handles the link changing while open) */
+async function handleShareHash(){
+  const h = location.hash || "";
+  if(!h.startsWith("#b=")) return false;
+  try{
+    const d = await decodeShare(h.slice(3));
+    enterVisit(d, "link");
+    return true;
+  }catch(e){
+    toast("Hmm, that share link didn’t open — ask your friend for a fresh one!");
+    try{ history.replaceState(null, "", location.pathname + location.search); }catch(err){}
+    return false;
+  }
+}
+window.addEventListener("hashchange", async function(){
+  const v = await handleShareHash();
+  if(!v && VIEW) exitVisit();
+});
 
 /* ================= TOAST + WIRING ================= */
 let toastT;
@@ -1261,9 +2109,11 @@ function toast(msg){
 $("#overlay").addEventListener("click",e=>{ if(e.target.id==="overlay") closeModal(); });
 $("#formOverlay").addEventListener("click",e=>{ if(e.target.id==="formOverlay") closeAddForm(); });
 $("#scanOverlay").addEventListener("click",e=>{ if(e.target.id==="scanOverlay") closeScan(); });
+$("#shareOverlay").addEventListener("click",e=>{ if(e.target.id==="shareOverlay") closeShare(); });
+$("#friendsOverlay").addEventListener("click",e=>{ if(e.target.id==="friendsOverlay") closeFriends(); });
 document.addEventListener("keydown",e=>{
-  if(e.key==="Escape"){ closeModal(); closeAddForm(); closeScan(); return; }
-  if($("#overlay").classList.contains("on") || $("#formOverlay").classList.contains("on") || $("#scanOverlay").classList.contains("on")) return;
+  if(e.key==="Escape"){ closeModal(); closeAddForm(); closeScan(); closeShare(); closeFriends(); closeVideo(); return; }
+  if($("#overlay").classList.contains("on") || $("#formOverlay").classList.contains("on") || $("#scanOverlay").classList.contains("on") || $("#shareOverlay").classList.contains("on") || $("#friendsOverlay").classList.contains("on") || $("#videoOverlay").classList.contains("on")) return;
   if(e.key==="ArrowLeft" && !$("#prevBtn").disabled){ pageIdx--; flip(-1); }
   if(e.key==="ArrowRight" && !$("#nextBtn").disabled){ pageIdx++; flip(1); }
 });
@@ -1278,9 +2128,16 @@ $("#addForm").addEventListener("submit",submitAdd);
 $("#scanBtn").onclick=triggerScan;
 $("#formScanBtn").onclick=()=>{ closeAddForm(); triggerScan(); };
 $("#scanInput").addEventListener("change",e=>{ const f=e.target.files&&e.target.files[0]; if(f) runScan(f); });
+$("#shareBtn").onclick=openShare;
+$("#friendsBtn").onclick=openFriends;
+$("#videoBtn").onclick=openVideo;
+$("#videoOverlay").addEventListener("click",e=>{ if(e.target.id==="videoOverlay") closeVideo(); });
+$("#videoInput").addEventListener("change",e=>{ const f=e.target.files&&e.target.files[0]; if(f) runVideo(f); });
 
-render();
-refreshAll();
+(async function boot(){
+  const visiting = await handleShareHash();   // opened through someone's share link?
+  if(!visiting){ render(); refreshAll(); }    // nope — normal day: your binder + live prices
+})();
 </script>
 </body>
 </html>
