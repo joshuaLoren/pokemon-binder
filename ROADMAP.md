@@ -80,7 +80,8 @@ Decided Aug 27, 2026: this is the video feature. ("Binder tours" — sharing the
 
 ## Platform decisions (the boring stuff that shapes everything)
 
-- **Hosting** — undecided/pending: GitHub Pages (public repo, free URL) so share links work anywhere and the binder lives on phones. Wrinkle when it happens: `binder.usercards` is per-browser, so fold user-added cards into `BUILTIN_CARDS` at publish time.
+- **Hosting** — ✅ DONE Sep 4, 2026: live on GitHub Pages at https://joshualoren.github.io/pokemon-binder/ (public repo, `main` branch, root). Verified live: prices refresh, card art loads, share links round-trip. Standing wrinkle: `binder.usercards` is per-browser, so cards added in one browser do NOT appear on the hosted site — fold them into `BUILTIN_CARDS` when they matter.
+- **Auth** — there is none, by design (no accounts, no server; each browser keeps its own binder). Everything in Pillars 1-3 that implies accounts, sync, or an AI key the user doesn't supply is gated behind picking a backend platform.
 - **Domain** — checked Aug 27, 2026: `mypokemonbinder.com` TAKEN (July 23, 2026, Cloudflare); `mypokemonbinder.app` and `.net` AVAILABLE; `pokebinder.com` taken. ⚠️ "Pokémon" is Nintendo's trademark — fine for a family project, a real conversation before anything public or monetized.
 - **Big fork: does this ever get a backend?** Live binders, real friend accounts, in-app AI chat, and cross-device sync all point at a backend; snapshots-in-links, BYO-key, and copy-to-Claude all preserve the beloved one-file zero-infra design. The one-file rule has been the superpower so far — break it deliberately or not at all.
 

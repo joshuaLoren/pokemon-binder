@@ -1,6 +1,8 @@
 # Pokémon Card Binder App
 
 ## What this is
+**Live at https://joshualoren.github.io/pokemon-binder/** (GitHub Pages, public repo `joshuaLoren/pokemon-binder`, served from `main` at the repo root — that's why the file must stay named `index.html`). Pushing to `main` redeploys it in about a minute.
+
 A one-file web app (`index.html`) that shows the owner's real Pokémon card collection like a 9-pocket binder, with live prices and trend charts. The owner is a beginner who is learning — when you make changes, explain what you did in simple, friendly terms.
 
 ## Rules
